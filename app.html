@@ -1677,7 +1677,73 @@
       hideRu ? "\u{1F441} \u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u043E\u0434" : "\u{1F648} \u0421\u043A\u0440\u044B\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u043E\u0434"
     )), mode === "study" && /* @__PURE__ */ React.createElement(StudyView, { lesson: screen.lesson, hideRu }), mode === "flash" && /* @__PURE__ */ React.createElement(FlashView, { lesson: screen.lesson }), mode === "match" && /* @__PURE__ */ React.createElement(MatchView, { pool: allPhrases(screen.lesson), prog, record }), mode === "quiz" && /* @__PURE__ */ React.createElement(QuizView, { pool: allPhrases(screen.lesson), prog, record })), screen.page === "dialogue" && /* @__PURE__ */ React.createElement(DialogueView, { dialogue: screen.dialogue, record })));
   }
-  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+  // ===== ПРОСТОЙ БАРЬЕР ДОСТУПА ПО КОДУ =====
+  // Код доступа. Чтобы сменить — поменяй строку ниже (и выдавай новый код в боте).
+  var ACCESS_CODE = "HABLA2026";
+  var GATE_KEY = "habla-access-ok";
+
+  function renderApp() {
+    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+  }
+
+  function showGate() {
+    var root = document.getElementById("root");
+    root.innerHTML =
+      '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+      'font-family:Rubik,-apple-system,Segoe UI,Roboto,sans-serif;background:#FDFDFB;padding:20px">' +
+        '<div style="background:#fff;border:1px solid #DCE6F0;border-radius:20px;padding:32px 26px;' +
+        'max-width:360px;width:100%;text-align:center;box-shadow:0 18px 50px -20px rgba(20,35,61,.25)">' +
+          '<div style="font-size:40px;margin-bottom:10px">🔒</div>' +
+          '<div style="font-size:20px;font-weight:700;color:#14233D;margin-bottom:8px">Доступ к курсу</div>' +
+          '<div style="font-size:14px;color:#7A8699;margin-bottom:20px;line-height:1.5">' +
+            'Введи код доступа, который прислал бот после оплаты.</div>' +
+          '<input id="gate-input" type="text" placeholder="Код доступа" autocomplete="off" ' +
+          'style="width:100%;box-sizing:border-box;padding:13px 16px;font-size:16px;text-align:center;' +
+          'border:2px solid #DCE6F0;border-radius:12px;outline:none;margin-bottom:12px;' +
+          'font-family:inherit;letter-spacing:2px;text-transform:uppercase">' +
+          '<div id="gate-error" style="color:#D95555;font-size:13px;height:18px;margin-bottom:8px"></div>' +
+          '<button id="gate-btn" style="width:100%;padding:13px;font-size:16px;font-weight:600;' +
+          'background:#74ACDF;color:#fff;border:none;border-radius:12px;cursor:pointer;font-family:inherit">' +
+            'Открыть курс</button>' +
+          '<div style="font-size:12px;color:#7A8699;margin-top:16px">' +
+            'Нет кода? Купить курс: ' +
+            '<a href="https://t.me/HablaArgentinaBot" style="color:#4A86BD">@HablaArgentinaBot</a></div>' +
+        '</div>' +
+      '</div>';
+
+    var input = document.getElementById("gate-input");
+    var err = document.getElementById("gate-error");
+    var btn = document.getElementById("gate-btn");
+
+    function tryOpen() {
+      var val = (input.value || "").trim().toUpperCase();
+      if (val === ACCESS_CODE) {
+        try { localStorage.setItem(GATE_KEY, "1"); } catch (e) {}
+        root.innerHTML = "";
+        renderApp();
+      } else {
+        err.textContent = "Неверный код. Проверь сообщение от бота.";
+        input.style.borderColor = "#D95555";
+      }
+    }
+    btn.addEventListener("click", tryOpen);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") tryOpen(); });
+    input.focus();
+  }
+
+  // Если код уже вводили раньше на этом устройстве — не спрашиваем снова.
+  var alreadyOk = false;
+  try { alreadyOk = localStorage.getItem(GATE_KEY) === "1"; } catch (e) {}
+  // Автопропуск по ссылке с кодом: hablaargentina.com/app.html?code=HABLA2026
+  try {
+    var qp = new URLSearchParams(window.location.search).get("code");
+    if (qp && qp.trim().toUpperCase() === ACCESS_CODE) {
+      localStorage.setItem(GATE_KEY, "1");
+      alreadyOk = true;
+    }
+  } catch (e) {}
+
+  if (alreadyOk) renderApp(); else showGate();
 })();
 
 </script>
