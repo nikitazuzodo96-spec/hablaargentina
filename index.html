@@ -582,11 +582,10 @@
     });
   })();
 
-  // buy button placeholder — replace with real checkout link
-  // Кнопка покупки. Пока оплата не подключена — ведёт прямо в приложение (app.html),
-  // чтобы курс работал на сайте сразу. Когда подключишь оплату (Gumroad / Lemon Squeezy /
-  // Stripe Payment Link / Mercado Pago), просто впиши ссылку checkout в CHECKOUT_URL ниже.
-  var CHECKOUT_URL = "app.html"; // <-- замени на ссылку оплаты, когда будет готова
+  // Кнопка покупки ведёт в Telegram-бота, где покупатель платит звёздами
+  // и сразу получает ссылку на курс.
+  var CHECKOUT_URL = "https://t.me/HablaArgentinaBot"; // username бота
   var buyBtn = document.getElementById('buy');
   buyBtn.setAttribute('href', CHECKOUT_URL);
+  buyBtn.setAttribute('target', '_blank');
 </script>
