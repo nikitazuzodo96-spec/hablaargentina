@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Habla Argentina — курс А1</title>
+<style>html,body{margin:0;background:#FDFDFB}#root{min-height:100vh}</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(() => {
+  // Компоненты/стили — паттерны app.html (C/font/pillStyle/btnStyle/Study/Flash/Match/Rules/Quiz),
+  // обобщённые под контент всех 24 уроков. Порядок тем логичен по грамматике,
+  // но нарочно перемешан относительно порядка страниц самой книги.
+  const { useState, useMemo, useEffect } = React;
+  const e = React.createElement;
+
+  const C = {
+    celeste: "#74ACDF", celesteDark: "#4A86BD", celesteLight: "#EAF3FB",
+    ink: "#1C2B45", sun: "#F6B40E", paper: "#FDFDFB",
+    green: "#3B9E6D", red: "#D95555", gray: "#7A8699", border: "#DCE6F0"
+  };
+  const font = "'Rubik', -apple-system, 'Segoe UI', Roboto, sans-serif";
+
+  const btnStyle = (primary) => ({
+    background: primary ? C.celeste : "#fff", color: primary ? "#fff" : C.ink,
+    border: `2px solid ${C.celeste}`, borderRadius: 12, padding: "11px 22px",
+    fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: font
+  });
+  const pillStyle = (active) => ({
+    background: active ? C.ink : "#fff", color: active ? "#fff" : C.ink,
+    border: `1.5px solid ${active ? C.ink : C.border}`, borderRadius: 999,
+    padding: "8px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer",
+    fontFamily: font, transition: "all .15s"
+  });
+
+  function Sun({ size = 22 }) {
+    return e("svg", { width: size, height: size, viewBox: "0 0 32 32", style: { flexShrink: 0 } },
+      [...Array(12)].map((_, i) => e("line", { key: i, x1: "16", y1: "3", x2: "16", y2: "8", stroke: C.sun, strokeWidth: "2.2", strokeLinecap: "round", transform: `rotate(${i * 30} 16 16)` })),
+      e("circle", { cx: "16", cy: "16", r: "6.5", fill: C.sun })
+    );
+  }
+
+  function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+  const p = (es, tr, ru) => ({ es, tr, ru });
+
+  // ================= КОНТЕНТ КУРСА (24 урока, вся книга, порядок переработан) =================
+
+  const L1_PHRASES = [
+    p("Hola", "óla", "Привет"), p("¿Qué tal?", "ке таль", "Как дела?"),
+    p("Todo bien", "тодо бьен", "Всё хорошо"), p("Más o menos", "мас о менос", "Так себе"),
+    p("¿Cómo te llamás?", "комо тэ шамас", "Как тебя зовут?"), p("Me llamo…", "мэ шамо", "Меня зовут…"),
+    p("¡Mucho gusto!", "мучо густо", "Очень приятно!"), p("¿De dónde sos?", "де донде сос", "Откуда ты?"),
+    p("Soy de Rusia", "сой де русиа", "Я из России"), p("Nos vemos", "нос вэмос", "Увидимся"),
+    p("Chau", "чау", "Пока"), p("Buenas noches", "буэнас ночес", "Доброй ночи")
+  ];
+  const L1_RULES = [
+    { rule: "Voseo: вместо «tú» — «vos»", body: "В Аргентине почти не говорят tú — говорят vos. Меняется форма глагола: не eres, а sos; не tienes, а tenés.",
+      ex: [["Vos sos de Rusia", "Ты из России"], ["¿Vos tenés tiempo?", "У тебя есть время?"]] },
+    { rule: "Pronombres personales", body: "Yo, vos, él/ella, usted (уважительно), nosotros/as, ellos/ellas, ustedes (вы во мн.ч., заменяет и vosotros).",
+      ex: [["Nosotros somos amigos", "Мы друзья"], ["Ustedes son turistas", "Вы туристы"]] },
+    { rule: "SER — когда используем", body: "Ser — «быть/являться» для постоянных признаков: происхождение, профессия, описание, материал, время, принадлежность.",
+      ex: [["Soy de Rusia", "Я из России"], ["María es doctora", "Мария — врач"], ["El auto es rojo", "Машина красная"]] },
+    { rule: "SER — спряжение", body: "Yo soy · vos sos · él/ella/usted es · nosotros somos · ellos/ellas/ustedes son.",
+      ex: [["Vos sos copado", "Ты классный"], ["Ellos son hermanos", "Они братья"]] }
+  ];
+
+  const L2_PHRASES = [
+    p("Grande", "грандэ", "Большой"), p("Pequeño", "пэкэньо", "Маленький"),
+    p("Alto", "альто", "Высокий"), p("Bajo", "бахо", "Низкий"),
+    p("Nuevo", "нуэво", "Новый"), p("Viejo", "вьехо", "Старый"),
+    p("Rápido", "рапидо", "Быстрый"), p("Lento", "лэнто", "Медленный"),
+    p("Bueno", "буэно", "Хороший"), p("Malo", "мало", "Плохой"),
+    p("Bonito", "бонито", "Красивый"), p("Feo", "фео", "Некрасивый")
+  ];
+  const L2_RULES = [
+    { rule: "SER — постоянное", body: "Идентичность, профессия, происхождение, характер, материал, форма — то, что не меняется от момента к моменту.",
+      ex: [["Él es médico", "Он врач"], ["Ella es alta", "Она высокая"], ["El libro es interesante", "Книга интересная"]] },
+    { rule: "ESTAR — временное / состояние", body: "Самочувствие, местоположение, эмоции, гражданский статус, поза — то, что легко меняется.",
+      ex: [["Estoy casado", "Я женат (сейчас)"], ["La tienda está cerrada", "Магазин закрыт"], ["Estoy de pie", "Я стою"]] },
+    { rule: "SER vs ESTAR — спряжение рядом", body: "Yo soy / estoy · vos sos / estás · él es / está · nosotros somos / estamos · ellos son / están.",
+      ex: [["Soy alto, pero hoy estoy cansado", "Я высокий, но сегодня устал"]] }
+  ];
+
+  const L3_PHRASES = [
+    p("Hablar", "аблар", "Говорить"), p("Comer", "комэр", "Есть"),
+    p("Vivir", "вивир", "Жить"), p("Trabajar", "трабахар", "Работать"),
+    p("Estudiar", "эстудьяр", "Учиться"), p("Beber", "бэбэр", "Пить"),
+    p("Escribir", "эскрибир", "Писать"), p("Correr", "коррэр", "Бегать"),
+    p("Leer", "леэр", "Читать"), p("Escuchar", "эскучар", "Слушать")
+  ];
+  const L3_RULES = [
+    { rule: "Спряжение -AR (hablar)", body: "Yo hablo · vos hablás · él/ella habla · nosotros hablamos · ellos hablan.",
+      ex: [["Yo trabajo mucho", "Я много работаю"], ["¿Vos hablás inglés?", "Ты говоришь по-английски?"]] },
+    { rule: "Спряжение -ER (comer)", body: "Yo como · vos comés · él come · nosotros comemos · ellos comen.",
+      ex: [["Como a las dos", "Я ем в два"], ["¿Qué comés?", "Что ты ешь?"]] },
+    { rule: "Спряжение -IR (vivir)", body: "Yo vivo · vos vivís · él vive · nosotros vivimos · ellos viven.",
+      ex: [["Vivo en Buenos Aires", "Я живу в Буэнос-Айресе"]] }
+  ];
+
+  const L4_PHRASES = [
+    p("El abuelo / La abuela", "эль абуэло / ля абуэла", "Дедушка / бабушка"),
+    p("El padre / La madre", "эль падрэ / ля мадрэ", "Отец / мать"),
+    p("El hermano / La hermana", "эль эрмано / ля эрмана", "Брат / сестра"),
+    p("El tío / La tía", "эль тио / ля тиа", "Дядя / тётя"),
+    p("El primo / La prima", "эль примо / ля прима", "Двоюродный брат / сестра"),
+    p("El hijo / La hija", "эль ихо / ля иха", "Сын / дочь"),
+    p("El esposo / La esposa", "эль эспосо / ля эспоса", "Муж / жена"),
+    p("Los nietos", "лос ньетос", "Внуки")
+  ];
+  const L4_RULES = [
+    { rule: "Притяжательные mi / tu / su", body: "Mi (мой), tu (твой, при vos), su (его/её/их/Ваш). Множественное число: mis, tus, sus.",
+      ex: [["Mi abuelo es de España", "Мой дед из Испании"], ["Tu familia es grande", "Твоя семья большая"]] }
+  ];
+
+  const L5_PHRASES = [
+    p("Alto / Baja", "альто / баха", "Высокий / низкая"), p("Flaco", "флако", "Худой"),
+    p("Gordo", "гордо", "Полный"), p("Lindo", "линдо", "Красивый"),
+    p("Simpático", "симпатико", "Приятный в общении"), p("Generoso", "генэросо", "Щедрый"),
+    p("Amable", "амаблэ", "Добрый"), p("Tímido", "тимидо", "Застенчивый"),
+    p("Extrovertido", "экстровэртидо", "Открытый (экстраверт)"), p("Perezoso", "пэрэсосо", "Ленивый")
+  ];
+  const L5_RULES = [
+    { rule: "SER + прилагательное = постоянная черта", body: "Внешность и характер — обычно с ser, потому что это устойчивые характеристики человека.",
+      ex: [["Es muy simpático", "Он очень приятный"], ["Es un poco tímida", "Она немного застенчивая"]] }
+  ];
+
+  const L6_PHRASES = [
+    p("Feliz", "фелис", "Счастливый"), p("Triste", "тристэ", "Грустный"),
+    p("Enojado", "эноxадо", "Злой / сердитый"), p("Cansado", "кансадо", "Уставший"),
+    p("Sorprendido", "сорпрэндидо", "Удивлённый"), p("Asustado", "асустадо", "Испуганный"),
+    p("Los ojos", "лос охос", "Глаза"), p("El pelo", "эль пэло", "Волосы"),
+    p("La cabeza", "ля кабэса", "Голова"), p("Las manos", "лас манос", "Руки")
+  ];
+  const L6_RULES = [
+    { rule: "ESTAR + эмоция = временное состояние", body: "В отличие от характера (ser), эмоции в моменте — с estar.",
+      ex: [["Estoy cansado hoy", "Я устал сегодня"], ["Está enojada conmigo", "Она злится на меня"]] }
+  ];
+
+  const L7_PHRASES = [
+    p("La manzana", "ля мансана", "Яблоко"), p("El tomate", "эль томатэ", "Помидор"),
+    p("El pollo", "эль пошо", "Курица"), p("El pescado", "эль пэскадо", "Рыба"),
+    p("La leche", "ля лечэ", "Молоко"), p("El pan", "эль пан", "Хлеб"),
+    p("El arroz", "эль аррос", "Рис"), p("El café", "эль кафэ", "Кофе"),
+    p("El agua", "эль агуа", "Вода"), p("El chocolate", "эль чоколатэ", "Шоколад")
+  ];
+  const L7_RULES = [
+    { rule: "Заказ еды", body: "Quiero / Quisiera + существительное — «хочу / хотел(а) бы».",
+      ex: [["Quiero un café, por favor", "Хочу кофе, пожалуйста"], ["¿Cuánto cuesta el pan?", "Сколько стоит хлеб?"]] }
+  ];
+
+  const L8_PHRASES = [
+    p("Despertarse — me despierto", "дэспэртарсэ", "Просыпаться"),
+    p("Levantarse — me levanto", "лэвантарсэ", "Вставать"),
+    p("Bañarse — me baño", "баньярсэ", "Мыться"),
+    p("Vestirse — me visto", "вэстирсэ", "Одеваться"),
+    p("Peinarse — me peino", "пэинарсэ", "Причёсываться"),
+    p("Desayunar", "дэсашунар", "Завтракать"),
+    p("Cepillarse los dientes", "сэпишарсэ лос дьентэс", "Чистить зубы"),
+    p("Acostarse — me acuesto", "акостарсэ", "Ложиться спать"),
+    p("Ducharse — me ducho", "дучарсэ", "Принимать душ"),
+    p("Relajarse — me relajo", "рэлахарсэ", "Расслабляться")
+  ];
+  const L8_RULES = [
+    { rule: "Возвратные глаголы", body: "Me / te / se / nos / se + глагол — действие, направленное на себя.",
+      ex: [["Me levanto a las siete", "Я встаю в семь"], ["¿A qué hora te acostás?", "Во сколько ты ложишься?"]] }
+  ];
+
+  const L9_PHRASES = [
+    p("Cero", "сэро", "Ноль"), p("Diez", "дьес", "Десять"),
+    p("Veinte", "вэйнтэ", "Двадцать"), p("Cien", "сьен", "Сто"),
+    p("Mil", "миль", "Тысяча"), p("¿Qué hora es?", "кэ ора эс", "Который час?"),
+    p("Es la una", "эс ля уна", "Час (дня/ночи)"), p("Son las tres", "сон лас трэс", "Три часа"),
+    p("Y cuarto", "и куарто", "Пятнадцать минут"), p("Menos diez", "мэнос дьес", "Без десяти")
+  ];
+  const L9_RULES = [
+    { rule: "Числа 11–99", body: "11–15 отдельные слова, дальше — decena + y + unidad: dieciséis = diez+y+seis, treinta y dos = тридцать два.",
+      ex: [["Dieciséis años", "Шестнадцать лет"], ["Treinta y dos pesos", "Тридцать два песо"]] }
+  ];
+
+  const L10_PHRASES = [
+    p("Lunes", "лунэс", "Понедельник"), p("Martes", "мартэс", "Вторник"),
+    p("Miércoles", "мьеркольэс", "Среда"), p("Jueves", "хуэвэс", "Четверг"),
+    p("Viernes", "вьернэс", "Пятница"), p("Sábado", "сабадо", "Суббота"),
+    p("Domingo", "доминго", "Воскресенье"), p("Rojo", "рохо", "Красный"),
+    p("Azul", "асуль", "Синий"), p("Verde", "вэрдэ", "Зелёный"), p("Amarillo", "амаришо", "Жёлтый")
+  ];
+  const L10_RULES = [
+    { rule: "Дни — с маленькой буквы", body: "В отличие от русского обычая с английским, дни недели и месяцы в испанском не пишут с заглавной буквы.",
+      ex: [["Hoy es lunes", "Сегодня понедельник"]] },
+    { rule: "Времена года и месяцы (бонус)", body: "Invierno, primavera, verano, otoño — времена года. Месяцы: enero, febrero, marzo… diciembre — тоже со строчной буквы.",
+      ex: [["En invierno hace frío", "Зимой холодно"]] }
+  ];
+
+  const L11_PHRASES = [
+    p("El chico / La chica", "эль чико / ля чика", "Парень / девушка"),
+    p("Un perro / Una gata", "ун пэрро / уна гата", "Пёс / кошка"),
+    p("El problema", "эль проблема", "Проблема (искл. — муж. род)"),
+    p("El día", "эль диа", "День (искл. — муж. род)"),
+    p("La mano", "ля мано", "Рука (искл. — жен. род)"),
+    p("El agua", "эль агуа", "Вода (el перед ударным a)"),
+    p("Los libros", "лос либрос", "Книги"), p("Las casas", "лас касас", "Дома")
+  ];
+  const L11_RULES = [
+    { rule: "Определённый / неопределённый артикль", body: "El/la/los/las — определённый; un/una/unos/unas — неопределённый. Обычно -o = муж. род, -a = жен. род.",
+      ex: [["El chico es alto", "Парень высокий"], ["Una chica simpática", "Приятная девушка"]] },
+    { rule: "Слова-исключения", body: "El día, el mapa, el problema, el planeta — муж. род несмотря на -a. La mano — жен. род несмотря на -o.",
+      ex: [["El mapa es viejo", "Карта старая"]] }
+  ];
+
+  const L12_PHRASES = [
+    p("La remera", "рэмэра", "Футболка"), p("El pantalón", "панталон", "Брюки"),
+    p("La pollera", "пошера", "Юбка"), p("El vestido", "вэстидо", "Платье"),
+    p("La campera", "кампэра", "Куртка"), p("Las zapatillas", "сапатишас", "Кроссовки"),
+    p("Los zapatos de taco", "сапатос дэ тако", "Туфли на каблуке"), p("Las botas", "ботас", "Сапоги"),
+    p("La bufanda", "буфанда", "Шарф"), p("El cinturón", "синтурон", "Ремень"),
+    p("Los anteojos de sol", "антэохос дэ соль", "Солнцезащитные очки"), p("El reloj", "рэлох", "Часы")
+  ];
+  const L12_RULES = [
+    { rule: "Llevar puesto / Ponerse", body: "Llevar puesto — «носить на себе» (сейчас надето); ponerse — «надевать».",
+      ex: [["Llevo puesta una campera azul", "На мне синяя куртка"], ["Me pongo las zapatillas", "Я надеваю кроссовки"]] }
+  ];
+
+  const L13_PHRASES = [
+    p("Tener → tengo", "тэнэр — тэнго", "Иметь — я имею"),
+    p("Hacer → hago", "асэр — аго", "Делать — я делаю"),
+    p("Poner → pongo", "понэр — понго", "Класть — я кладу"),
+    p("Salir → salgo", "салир — сальго", "Выходить — я выхожу"),
+    p("Venir → vengo", "вэнир — вэнго", "Приходить — я прихожу"),
+    p("Decir → digo", "дэсир — диго", "Сказать — я говорю"),
+    p("Conducir → conduzco", "кондусир — кондуско", "Водить — я вожу"),
+    p("Conocer → conozco", "коносэр — коноско", "Знать (место/чел.) — я знаю"),
+    p("Saber → sé", "сабэр — сэ", "Знать (факт) — я знаю"),
+    p("Ir → voy", "ир — вой", "Идти — я иду")
+  ];
+  const L13_RULES = [
+    { rule: "Неправильная форма YO", body: "Многие глаголы неправильны только в форме yo: -go (hago, salgo, pongo), -zco (conozco, conduzco), а sé и voy — полностью особые.",
+      ex: [["Yo hago la tarea", "Я делаю задание"], ["Yo conozco Buenos Aires", "Я знаю Буэнос-Айрес"]] }
+  ];
+
+  const L14_PHRASES = [
+    p("El médico / La médica", "мэдико", "Врач"), p("El profesor / La profesora", "профэсор", "Учитель"),
+    p("El cocinero", "косинэро", "Повар"), p("El policía", "полисиа", "Полицейский"),
+    p("El bombero", "бомбэро", "Пожарный"), p("El abogado", "абогадо", "Юрист"),
+    p("El ingeniero", "инxэньеро", "Инженер"), p("El carpintero", "карпинтэро", "Плотник"),
+    p("El peluquero", "пэлукэро", "Парикмахер"), p("El periodista", "пэриодиста", "Журналист")
+  ];
+  const L14_RULES = [
+    { rule: "SER + профессия — без артикля", body: "В базовом случае артикль не нужен: soy profesor (а не soy un profesor). Артикль появляется, если есть определение.",
+      ex: [["Soy profesor", "Я учитель"], ["Es un profesor excelente", "Он отличный учитель"]] }
+  ];
+
+  const L15_PHRASES = [
+    p("Me gusta", "мэ густа", "Мне нравится"), p("Te gusta", "тэ густа", "Тебе нравится"),
+    p("Le gusta", "лэ густа", "Ему/ей нравится"), p("Nos gusta", "нос густа", "Нам нравится"),
+    p("Me encanta", "мэ энканта", "Я обожаю"), p("Me interesa", "мэ интэрэса", "Мне интересно"),
+    p("Me molesta", "мэ молэста", "Меня раздражает"), p("Me duele", "мэ дуэлэ", "У меня болит"),
+    p("Me importa", "мэ импорта", "Мне важно"), p("Me preocupa", "мэ прэокупа", "Меня беспокоит")
+  ];
+  const L15_RULES = [
+    { rule: "Конструкция GUSTAR — наоборот", body: "Буквально «мне нравится оно»: gusta для одного предмета, gustan — для нескольких.",
+      ex: [["Me gusta el fútbol", "Мне нравится футбол"], ["Me gustan los perros", "Мне нравятся собаки"]] }
+  ];
+
+  const L16_PHRASES = [
+    p("Ir", "ир", "Идти / ехать (от себя)"), p("Venir", "вэнир", "Приходить (к говорящему)"),
+    p("Llevar", "шевар", "Нести / везти (туда)"), p("Traer", "траэр", "Приносить (сюда)"),
+    p("Volver", "вольвэр", "Возвращаться"), p("Llegar", "шегар", "Прибывать"),
+    p("Voy", "вой", "Я иду"), p("Vengo", "вэнго", "Я прихожу"),
+    p("Llevo", "шево", "Я несу / везу"), p("Traigo", "трайго", "Я приношу")
+  ];
+  const L16_RULES = [
+    { rule: "IR vs VENIR — откуда смотрим", body: "Ir — движение от говорящего; venir — движение к говорящему.",
+      ex: [["Voy a tu casa", "Я иду к тебе"], ["¿Venís a mi fiesta?", "Придёшь на мою вечеринку?"]] },
+    { rule: "LLEVAR vs TRAER", body: "Llevar — унести туда; traer — принести сюда. Та же логика, что ir/venir.",
+      ex: [["Llevo mi pasaporte al aeropuerto", "Я везу паспорт в аэропорт"], ["Mis amigos me traen una torta", "Друзья приносят мне торт"]] }
+  ];
+
+  const L17_PHRASES = [
+    p("Saber", "сабэр", "Знать факт / уметь"), p("Conocer", "коносэр", "Быть знакомым (место/чел.)"),
+    p("Sé", "сэ", "Я знаю"), p("Conozco", "коноско", "Я знаком"),
+    p("Hablar", "аблар", "Говорить (на языке / долго)"), p("Decir", "дэсир", "Сказать (слова/факт)"),
+    p("Contar", "контар", "Рассказывать / считать")
+  ];
+  const L17_RULES = [
+    { rule: "SABER vs CONOCER", body: "Saber — знать факт или уметь что-то делать. Conocer — быть знакомым с местом или человеком.",
+      ex: [["Sé hablar español", "Я умею говорить по-испански"], ["Conozco Buenos Aires", "Я знаю Буэнос-Айрес (бывал там)"]] },
+    { rule: "HABLAR vs DECIR vs CONTAR", body: "Hablar — говорить в целом/на языке. Decir — сказать конкретные слова/факт. Contar — рассказывать историю.",
+      ex: [["Hablo español", "Я говорю по-испански"], ["Ella cuenta una historia", "Она рассказывает историю"]] }
+  ];
+
+  const L18_PHRASES = [
+    p("Estoy leyendo", "эстой лэшендо", "Я читаю (сейчас)"), p("Estás durmiendo", "эстас дурмьендо", "Ты спишь"),
+    p("Está sirviendo", "эста сирвьендо", "Он/она подаёт"), p("Estamos pidiendo", "эстамос пидьендо", "Мы заказываем"),
+    p("Están siguiendo", "эстан сигьендо", "Они продолжают"), p("Estoy vistiendo", "эстой вистьендо", "Я одеваюсь"),
+    p("Está diciendo", "эста дисьендо", "Он говорит"), p("Estás repitiendo", "эстас репитьендо", "Ты повторяешь")
+  ];
+  const L18_RULES = [
+    { rule: "Estar + Gerundio", body: "Показывает действие прямо в моменте речи: estoy/estás/está/estamos/están + герундий (-ando / -iendo).",
+      ex: [["Estoy comiendo", "Я ем (прямо сейчас)"], ["¿Qué estás haciendo?", "Что ты делаешь?"]] },
+    { rule: "Герундий с изменением корня", body: "pedir→pidiendo, servir→sirviendo, decir→diciendo, seguir→siguiendo, dormir→durmiendo, morir→muriendo, ir→yendo, leer→leyendo.",
+      ex: [["Está durmiendo la siesta", "Он спит сиесту"]] },
+    { rule: "Presente simple vs Estar+Gerundio", body: "Обычное действие (normalmente, siempre) — простое настоящее. Действие прямо сейчас (ahora, en este momento) — estar+gerundio.",
+      ex: [["Normalmente trabajo en casa", "Обычно я работаю дома"], ["Ahora estoy trabajando en la oficina", "Сейчас я работаю в офисе"]] }
+  ];
+
+  const L19_PHRASES = [
+    p("El fútbol", "футболь", "Футбол"), p("El tenis", "тэнис", "Теннис"),
+    p("La natación", "натасьон", "Плавание"), p("Bailar", "байлар", "Танцевать"),
+    p("Cantar", "кантар", "Петь"), p("Jugar al ajedrez", "хугар аль ахэдрэс", "Играть в шахматы"),
+    p("Tocar la guitarra", "токар ля гитарра", "Играть на гитаре"), p("Viajar", "вьяхар", "Путешествовать"),
+    p("Ir de compras", "ир дэ компрас", "Ходить по магазинам"), p("Hacer yoga", "асэр шога", "Заниматься йогой")
+  ];
+  const L19_RULES = [
+    { rule: "Jugar a vs Hacer/Practicar", body: "Спорт с мячом/игрой — jugar al + вид спорта. Остальная активность — hacer/practicar + занятие.",
+      ex: [["Juego al tenis los sábados", "Я играю в теннис по субботам"], ["Hago yoga por la mañana", "Я занимаюсь йогой по утрам"]] }
+  ];
+
+  const L20_PHRASES = [
+    p("Tener hambre", "тэнэр амбрэ", "Быть голодным"), p("Tener sed", "тэнэр сэд", "Хотеть пить"),
+    p("Tener miedo", "тэнэр мьедо", "Бояться"), p("Tener sueño", "тэнэр суэньо", "Хотеть спать"),
+    p("Tener frío", "тэнэр фрио", "Мёрзнуть"), p("Tener calor", "тэнэр калор", "Испытывать жару"),
+    p("Tener prisa", "тэнэр приса", "Спешить"), p("Tener razón", "тэнэр расон", "Быть правым"),
+    p("Tener… años", "тэнэр аньос", "Иметь возраст (лет)"), p("Tener que + infinitivo", "тэнэр кэ", "Быть должным")
+  ];
+  const L20_RULES = [
+    { rule: "TENER — не только «иметь»", body: "Используется в устойчивых выражениях (голод, страх, возраст) там, где в русском — другие конструкции.",
+      ex: [["Tengo 25 años", "Мне 25 лет"], ["Tengo hambre", "Я голоден"]] },
+    { rule: "TENER QUE + инфинитив = долженствование", body: "«Быть должным что-то сделать».",
+      ex: [["Tengo que trabajar mañana", "Я должен работать завтра"]] }
+  ];
+
+  const L21_PHRASES = [
+    p("¿Qué?", "кэ", "Что?"), p("¿Quién?", "кьен", "Кто?"),
+    p("¿Dónde?", "дондэ", "Где?"), p("¿Adónde?", "адондэ", "Куда?"),
+    p("¿Cuándo?", "куандо", "Когда?"), p("¿Cómo?", "комо", "Как?"),
+    p("¿Cuánto/a?", "куанто/а", "Сколько?"), p("¿Cuál?", "куаль", "Который / какой?"), p("¿Por qué?", "пор кэ", "Почему?")
+  ];
+  const L21_RULES = [
+    { rule: "CUÁL vs QUÉ", body: "Qué + существительное («что за…»). Cuál — при выборе из вариантов.",
+      ex: [["¿Qué es esto?", "Что это?"], ["¿Cuál es tu color favorito?", "Какой твой любимый цвет?"]] }
+  ];
+
+  const L22_PHRASES = [
+    p("El dormitorio", "дормиторио", "Спальня"), p("La cama", "кама", "Кровать"),
+    p("La cocina", "косина", "Кухня"), p("La heladera", "элядэра", "Холодильник"),
+    p("El baño", "баньо", "Ванная"), p("La ducha", "дуча", "Душ"),
+    p("El inodoro", "инодоро", "Унитаз"), p("La puerta", "пуэрта", "Дверь"),
+    p("La ventana", "вэнтана", "Окно"), p("Hay", "ай", "Есть / имеется")
+  ];
+  const L22_RULES = [
+    { rule: "HAY — безличный глагол", body: "«Hay» означает «есть/имеется» и не меняется по числам и лицам: hay un/una…, hay muchos….",
+      ex: [["Hay una cama en el dormitorio", "В спальне есть кровать"], ["No hay problema", "Нет проблем"]] }
+  ];
+
+  const L23_PHRASES = [
+    p("El dinero", "динэро", "Деньги"), p("La cuenta", "куэнта", "Счёт"),
+    p("La tarjeta de crédito", "тархэта дэ крэдито", "Кредитная карта"), p("El cajero automático", "каxэро аутоматико", "Банкомат"),
+    p("La transferencia", "трансфэрэнсия", "Перевод денег"), p("El efectivo", "эфэктиво", "Наличные"),
+    p("La contraseña", "контрасэнья", "Пароль"), p("El saldo", "сальдо", "Баланс")
+  ];
+  const L23_RULES = [
+    { rule: "Pagar con / en", body: "Pagar con tarjeta (картой), pagar en efectivo (наличными).",
+      ex: [["¿Puedo pagar con tarjeta?", "Могу я заплатить картой?"]] }
+  ];
+
+  const L24_PHRASES = [
+    p("El alquiler", "алькилер", "Аренда"), p("El inquilino", "инкилино", "Арендатор"),
+    p("El propietario", "пропьетарио", "Владелец"), p("El depósito", "дэпосито", "Залог"),
+    p("Amueblado", "амуэбладо", "Меблированный"), p("Los servicios", "сервисьос", "Коммунальные услуги"),
+    p("El contrato", "контрато", "Договор"), p("Las expensas", "экспэнсас", "Коммунальные платежи")
+  ];
+  const L24_RULES = [
+    { rule: "Полезные вопросы при аренде", body: "Пригодится при съёме квартиры в Аргентине.",
+      ex: [["¿Cuánto es el depósito?", "Сколько составляет залог?"], ["¿Los servicios están incluidos?", "Коммунальные услуги включены?"]] }
+  ];
+
+  const LESSONS = [
+    { id: 1, emoji: "👋", title: "Saludos y Ser", titleRu: "Приветствия и глагол Ser", sub: "Приветствия, местоимения, Ser", phrases: L1_PHRASES, rules: L1_RULES },
+    { id: 2, emoji: "⚖️", title: "Ser vs Estar", titleRu: "Ser против Estar («быть» двумя способами)", sub: "Постоянное и временное + прилагательные", phrases: L2_PHRASES, rules: L2_RULES },
+    { id: 3, emoji: "🗣️", title: "Presente: verbos regulares", titleRu: "Настоящее время: правильные глаголы", sub: "-AR / -ER / -IR", phrases: L3_PHRASES, rules: L3_RULES },
+    { id: 4, emoji: "👪", title: "La familia", titleRu: "Семья", sub: "Семья и притяжательные", phrases: L4_PHRASES, rules: L4_RULES },
+    { id: 5, emoji: "🙂", title: "Apariencia y carácter", titleRu: "Внешность и характер", sub: "Внешность и характер", phrases: L5_PHRASES, rules: L5_RULES },
+    { id: 6, emoji: "😊", title: "Emociones y cuerpo", titleRu: "Эмоции и тело", sub: "Эмоции и части тела", phrases: L6_PHRASES, rules: L6_RULES },
+    { id: 7, emoji: "🍎", title: "Comida", titleRu: "Еда", sub: "Еда и напитки", phrases: L7_PHRASES, rules: L7_RULES },
+    { id: 8, emoji: "🛏️", title: "Rutina diaria", titleRu: "Ежедневная рутина", sub: "Возвратные глаголы", phrases: L8_PHRASES, rules: L8_RULES },
+    { id: 9, emoji: "🔢", title: "Números y la hora", titleRu: "Числа и время", sub: "Числа и время", phrases: L9_PHRASES, rules: L9_RULES },
+    { id: 10, emoji: "📅", title: "Calendario y colores", titleRu: "Календарь и цвета", sub: "Дни недели + цвета", phrases: L10_PHRASES, rules: L10_RULES },
+    { id: 11, emoji: "🔤", title: "Artículos y género", titleRu: "Артикли и род существительных", sub: "El/la/los/las, un/una", phrases: L11_PHRASES, rules: L11_RULES },
+    { id: 12, emoji: "🧥", title: "Ropa, calzado y accesorios", titleRu: "Одежда, обувь и аксессуары", sub: "Одежда полностью", phrases: L12_PHRASES, rules: L12_RULES },
+    { id: 13, emoji: "🔁", title: "Presente: verbos irregulares", titleRu: "Настоящее время: неправильные глаголы", sub: "Неправильная форма yo", phrases: L13_PHRASES, rules: L13_RULES },
+    { id: 14, emoji: "👩‍⚕️", title: "Las profesiones", titleRu: "Профессии", sub: "Профессии", phrases: L14_PHRASES, rules: L14_RULES },
+    { id: 15, emoji: "❤️", title: "Gustar y verbos parecidos", titleRu: "«Нравиться» и похожие глаголы", sub: "Нравится, обожаю, интересно", phrases: L15_PHRASES, rules: L15_RULES },
+    { id: 16, emoji: "🚶", title: "Ir, venir, llevar, traer", titleRu: "Идти, приходить, нести, приносить", sub: "Глаголы движения", phrases: L16_PHRASES, rules: L16_RULES },
+    { id: 17, emoji: "🧠", title: "Saber, conocer, decir, contar", titleRu: "Знать, быть знакомым, сказать, рассказывать", sub: "Похожие глаголы — в чём разница", phrases: L17_PHRASES, rules: L17_RULES },
+    { id: 18, emoji: "🏃", title: "Estar + Gerundio", titleRu: "Estar + герундий (действие сейчас)", sub: "Что происходит прямо сейчас", phrases: L18_PHRASES, rules: L18_RULES },
+    { id: 19, emoji: "⚽", title: "Deportes y hobbies", titleRu: "Спорт и увлечения", sub: "Спорт и увлечения", phrases: L19_PHRASES, rules: L19_RULES },
+    { id: 20, emoji: "🥵", title: "Tener y sus expresiones", titleRu: "Tener и устойчивые выражения с ним", sub: "Голоден, боюсь, должен…", phrases: L20_PHRASES, rules: L20_RULES },
+    { id: 21, emoji: "❓", title: "Pronombres interrogativos", titleRu: "Вопросительные местоимения", sub: "Вопросительные слова", phrases: L21_PHRASES, rules: L21_RULES },
+    { id: 22, emoji: "🏠", title: "La casa completa", titleRu: "Дом полностью", sub: "Все комнаты + глагол Hay", phrases: L22_PHRASES, rules: L22_RULES },
+    { id: 23, emoji: "🏦", title: "En el banco", titleRu: "В банке", sub: "Деньги и банк", phrases: L23_PHRASES, rules: L23_RULES },
+    { id: 24, emoji: "🔑", title: "Alquiler de departamento", titleRu: "Аренда квартиры", sub: "Аренда жилья", phrases: L24_PHRASES, rules: L24_RULES }
+  ];
+
+  // ================= Общие компоненты уровня урока =================
+
+  function PhraseCard({ ph, hideRu }) {
+    const [revealed, setRevealed] = useState(false);
+    const showRu = !hideRu || revealed;
+    return e("div", {
+      onClick: () => hideRu && setRevealed(!revealed),
+      style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", cursor: hideRu ? "pointer" : "default", display: "flex", alignItems: "center", gap: 12 }
+    },
+      e("div", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 } },
+        e("div", { style: { fontSize: 16, fontWeight: 600, color: C.ink } }, ph.es),
+        e("div", { style: { fontSize: 13.5, color: C.celesteDark, fontStyle: "italic" } }, ph.tr),
+        e("div", { style: { fontSize: 14, color: showRu ? C.gray : "transparent", background: showRu ? "none" : C.celesteLight, borderRadius: 6 } }, showRu ? ph.ru : "нажми, чтобы увидеть перевод")
+      )
+    );
+  }
+  function StudyView({ pool, hideRu }) {
+    return e("div", { style: { display: "grid", gap: 8 } }, pool.map((ph, i) => e(PhraseCard, { key: i, ph, hideRu })));
+  }
+  function FlashView({ pool }) {
+    const [phrases] = useState(() => shuffle(pool));
+    const [idx, setIdx] = useState(0);
+    const [flipped, setFlipped] = useState(false);
+    const ph = phrases[idx];
+    const next = (d) => { setFlipped(false); setIdx((idx + d + phrases.length) % phrases.length); };
+    return e("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 16 } },
+      e("div", { style: { fontSize: 13, color: C.gray } }, idx + 1, " из ", phrases.length),
+      e("div", { onClick: () => setFlipped(!flipped), style: { width: "100%", maxWidth: 420, minHeight: 190, borderRadius: 20, background: flipped ? C.ink : "#fff", border: `2px solid ${flipped ? C.ink : C.celeste}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: 22, cursor: "pointer", textAlign: "center", boxShadow: "0 4px 16px rgba(28,43,69,.08)", position: "relative" } },
+        !flipped
+          ? e(React.Fragment, null, e("div", { style: { fontSize: 22, fontWeight: 700, color: C.ink } }, ph.es), e("div", { style: { fontSize: 15, color: C.celesteDark, fontStyle: "italic" } }, ph.tr), e("div", { style: { fontSize: 12, color: C.gray, marginTop: 8 } }, "нажми — увидишь перевод"))
+          : e("div", { style: { fontSize: 19, fontWeight: 600, color: "#fff" } }, ph.ru)
+      ),
+      e("div", { style: { display: "flex", gap: 10 } },
+        e("button", { style: btnStyle(false), onClick: () => next(-1) }, "← Назад"),
+        e("button", { style: btnStyle(true), onClick: () => next(1) }, "Дальше →")
+      )
+    );
+  }
+  function MatchView({ pool }) {
+    const [round, setRound] = useState(0);
+    const pairs = useMemo(() => shuffle(pool).slice(0, Math.min(6, pool.length)), [round, pool]);
+    const rightCol = useMemo(() => shuffle(pairs), [pairs]);
+    const [selL, setSelL] = useState(null);
+    const [selR, setSelR] = useState(null);
+    const [matched, setMatched] = useState({});
+    const [wrong, setWrong] = useState(null);
+    const [errs, setErrs] = useState(0);
+    const allDone = pairs.length > 0 && pairs.every(ph => matched[ph.es]);
+    const evaluate = (l, r) => {
+      if (l === r) { setMatched(m => ({ ...m, [l]: true })); }
+      else { setWrong({ l, r }); setErrs(e => e + 1); setTimeout(() => setWrong(null), 700); }
+      setSelL(null); setSelR(null);
+    };
+    const clickL = (es) => { if (matched[es] || wrong) return; if (selR) evaluate(es, selR); else setSelL(selL === es ? null : es); };
+    const clickR = (es) => { if (matched[es] || wrong) return; if (selL) evaluate(selL, es); else setSelR(selR === es ? null : es); };
+    const nextRound = () => { setRound(r => r + 1); setMatched({}); setSelL(null); setSelR(null); setWrong(null); setErrs(0); };
+    const cellStyle = (state) => ({
+      background: state === "done" ? "#EAF7F0" : state === "sel" ? C.celesteLight : state === "wrong" ? "#FBEDED" : "#fff",
+      border: `2px solid ${state === "done" ? C.green : state === "sel" ? C.celeste : state === "wrong" ? C.red : C.border}`,
+      color: state === "done" ? C.green : state === "wrong" ? C.red : C.ink,
+      opacity: state === "done" ? 0.65 : 1, borderRadius: 12, padding: "11px 10px", textAlign: "left",
+      width: "100%", cursor: state === "done" ? "default" : "pointer", fontFamily: font, minHeight: 58
+    });
+    return e("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
+      e("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 13, color: C.gray } },
+        e("span", null, "Соедини испанское слово с переводом"), e("span", { style: { color: errs ? C.red : C.gray } }, "✗ ", errs)),
+      e("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+        e("div", { style: { display: "grid", gap: 8, alignContent: "start" } }, pairs.map(ph => {
+          const state = matched[ph.es] ? "done" : wrong?.l === ph.es ? "wrong" : selL === ph.es ? "sel" : "idle";
+          return e("button", { key: ph.es, onClick: () => clickL(ph.es), style: cellStyle(state) },
+            e("div", { style: { fontSize: 13.5, fontWeight: 700 } }, ph.es), e("div", { style: { fontSize: 11.5, fontStyle: "italic", color: C.celesteDark } }, ph.tr));
+        })),
+        e("div", { style: { display: "grid", gap: 8, alignContent: "start" } }, rightCol.map(ph => {
+          const state = matched[ph.es] ? "done" : wrong?.r === ph.es ? "wrong" : selR === ph.es ? "sel" : "idle";
+          return e("button", { key: ph.es, onClick: () => clickR(ph.es), style: cellStyle(state) }, e("div", { style: { fontSize: 13.5 } }, ph.ru));
+        }))
+      ),
+      allDone && e("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "10px 0" } },
+        e(Sun, { size: 40 }), e("div", { style: { fontSize: 18, fontWeight: 800, color: C.ink } }, errs === 0 ? "¡Perfecto! Без единой ошибки" : `Готово! Ошибок: ${errs}`),
+        e("button", { onClick: nextRound, style: btnStyle(true) }, "Следующие 6 →"))
+    );
+  }
+  function QuizView({ pool }) {
+    const makeQuestions = () => shuffle(pool).slice(0, Math.min(8, pool.length)).map(ph => {
+      const wrong = shuffle(pool.filter(x => x.ru !== ph.ru)).slice(0, 3);
+      return { ph, options: shuffle([...wrong, ph]) };
+    });
+    const [questions, setQuestions] = useState(makeQuestions);
+    const [qi, setQi] = useState(0);
+    const [picked, setPicked] = useState(null);
+    const [score, setScore] = useState(0);
+    const [done, setDone] = useState(false);
+    const q = questions[qi];
+    const pick = (opt) => { if (picked !== null) return; setPicked(opt); if (opt.ru === q.ph.ru) setScore(s => s + 1); };
+    const next = () => { setPicked(null); if (qi + 1 >= questions.length) setDone(true); else setQi(qi + 1); };
+    const restart = () => { setQuestions(makeQuestions()); setQi(0); setPicked(null); setScore(0); setDone(false); };
+    if (!q) return e("div", { style: { color: C.gray, textAlign: "center", padding: 30 } }, "Недостаточно слов для теста.");
+    if (done) {
+      const pct = Math.round(score / questions.length * 100);
+      return e("div", { style: { textAlign: "center", padding: "30px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 } },
+        e(Sun, { size: 54 }), e("div", { style: { fontSize: 30, fontWeight: 800, color: C.ink } }, score, " / ", questions.length),
+        e("div", { style: { fontSize: 16, color: C.gray, maxWidth: 340 } }, pct === 100 ? "¡Perfecto! Урок усвоен 🇦🇷" : pct >= 70 ? "¡Muy bien! Ошибки попадут в «Повторение»" : "Dale, ошибки сохранены — они будут попадаться чаще"),
+        e("button", { onClick: restart, style: btnStyle(true) }, "Пройти ещё раз"));
+    }
+    return e("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
+      e("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 13, color: C.gray } }, e("span", null, "Вопрос ", qi + 1, " из ", questions.length), e("span", null, "✓ ", score)),
+      e("div", { style: { height: 6, background: C.celesteLight, borderRadius: 3 } }, e("div", { style: { height: 6, width: `${qi / questions.length * 100}%`, background: C.celeste, borderRadius: 3 } })),
+      e("div", { style: { background: "#fff", border: `2px solid ${C.celeste}`, borderRadius: 16, padding: "20px 18px", textAlign: "center", position: "relative" } },
+        e("div", { style: { fontSize: 13, color: C.gray, marginBottom: 6 } }, "Что это значит?"),
+        e("div", { style: { fontSize: 21, fontWeight: 700, color: C.ink } }, q.ph.es),
+        e("div", { style: { fontSize: 14, color: C.celesteDark, fontStyle: "italic", marginTop: 4 } }, q.ph.tr)),
+      e("div", { style: { display: "grid", gap: 8 } }, q.options.map((opt, i) => {
+        let bg = "#fff", border = C.border, color = C.ink;
+        if (picked !== null) { if (opt.ru === q.ph.ru) { bg = "#EAF7F0"; border = C.green; color = C.green; } else if (opt === picked) { bg = "#FBEDED"; border = C.red; color = C.red; } }
+        return e("button", { key: i, onClick: () => pick(opt), style: { background: bg, border: `2px solid ${border}`, color, borderRadius: 12, padding: "13px 16px", fontSize: 15, fontWeight: 500, textAlign: "left", cursor: picked === null ? "pointer" : "default", fontFamily: font } }, opt.ru);
+      })),
+      picked !== null && e("button", { onClick: next, style: { ...btnStyle(true), alignSelf: "center" } }, qi + 1 >= questions.length ? "Результат" : "Дальше →")
+    );
+  }
+  function RulesView({ rules }) {
+    return e("div", { style: { display: "grid", gap: 10 } }, rules.map((r, i) => e("div", { key: i, style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px" } },
+      e("div", { style: { fontSize: 15.5, fontWeight: 700, color: C.celesteDark, marginBottom: 6 } }, r.rule),
+      e("div", { style: { fontSize: 13.5, color: C.gray, lineHeight: 1.5, marginBottom: 8 } }, r.body),
+      r.ex.map((ex, j) => e("div", { key: j, style: { fontSize: 13.5, color: C.ink, marginBottom: 3 } }, e("b", null, ex[0]), e("span", { style: { color: C.gray } }, " — ", ex[1])))
+    )));
+  }
+
+  function LessonScreen({ lesson, onBack }) {
+    const [mode, setMode] = useState(lesson.rules ? "rules" : "study");
+    const [hideRu, setHideRu] = useState(false);
+    return e("div", null,
+      e("div", { style: { background: `linear-gradient(180deg, ${C.celeste} 0%, ${C.celesteDark} 100%)`, padding: "16px 20px", color: "#fff" } },
+        e("div", { style: { maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", gap: 10 } },
+          e("button", { onClick: onBack, style: { background: "rgba(255,255,255,.2)", border: "none", color: "#fff", borderRadius: 10, padding: "7px 13px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: font } }, "← Назад"),
+          e("div", null,
+            e("div", { style: { fontSize: 17, fontWeight: 700 } }, lesson.emoji, " ", lesson.title),
+            lesson.titleRu && e("div", { style: { fontSize: 12.5, opacity: 0.85 } }, lesson.titleRu)
+          )
+        )
+      ),
+      e("div", { style: { maxWidth: 640, margin: "0 auto", padding: "20px 16px 40px", display: "flex", flexDirection: "column", gap: 16 } },
+        e("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+          lesson.rules && e("button", { onClick: () => setMode("rules"), style: pillStyle(mode === "rules") }, "📖 Правила"),
+          e("button", { onClick: () => setMode("study"), style: pillStyle(mode === "study") }, "📋 Учить"),
+          e("button", { onClick: () => setMode("flash"), style: pillStyle(mode === "flash") }, "🎴 Карточки"),
+          e("button", { onClick: () => setMode("match"), style: pillStyle(mode === "match") }, "🔗 Пары"),
+          e("button", { onClick: () => setMode("quiz"), style: pillStyle(mode === "quiz") }, "✅ Тест"),
+          mode === "study" && e("button", { onClick: () => setHideRu(!hideRu), style: { ...pillStyle(hideRu), marginLeft: "auto" } }, hideRu ? "👁 Показать перевод" : "🙈 Скрыть перевод")
+        ),
+        mode === "rules" && lesson.rules && e(RulesView, { rules: lesson.rules }),
+        mode === "study" && e(StudyView, { pool: lesson.phrases, hideRu }),
+        mode === "flash" && e(FlashView, { pool: lesson.phrases }),
+        mode === "match" && e(MatchView, { pool: lesson.phrases }),
+        mode === "quiz" && e(QuizView, { pool: lesson.phrases })
+      )
+    );
+  }
+
+  // ================= Домашний экран =================
+  function LessonRow({ emoji, title, titleRu, sub, badge, onClick }) {
+    return e("div", { onClick, style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 } },
+      e("div", { style: { fontSize: 24 } }, emoji),
+      e("div", { style: { flex: 1 } },
+        e("div", { style: { fontSize: 15.5, fontWeight: 700 } }, title),
+        titleRu && e("div", { style: { fontSize: 12.5, color: C.celesteDark, fontWeight: 600 } }, "— ", titleRu),
+        e("div", { style: { fontSize: 12, color: C.gray, marginTop: 1 } }, sub)
+      ),
+      badge && e("div", { style: { fontSize: 11.5, color: C.celesteDark, fontWeight: 600, background: C.celesteLight, borderRadius: 999, padding: "4px 9px", whiteSpace: "nowrap" } }, badge)
+    );
+  }
+
+  function App() {
+    const [screen, setScreen] = useState({ page: "home" });
+    return e("div", { style: { minHeight: "100vh", background: C.paper, fontFamily: font, color: C.ink } },
+      e("style", null, `@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap'); *{box-sizing:border-box;margin:0} button:focus-visible{outline:3px solid ${C.sun};outline-offset:2px}`),
+
+      screen.page === "home" && e(React.Fragment, null,
+        e("div", { style: { background: `linear-gradient(180deg, ${C.celeste} 0%, ${C.celesteDark} 100%)`, padding: "28px 20px 24px", color: "#fff" } },
+          e("div", { style: { maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", gap: 12 } },
+            e(Sun, { size: 40 }),
+            e("div", null, e("div", { style: { fontSize: 25, fontWeight: 800, letterSpacing: -0.5 } }, "Habla Argentina"),
+              e("div", { style: { fontSize: 13.5, opacity: 0.9 } }, "Курс А1 · 24 урока"))
+          )
+        ),
+        e("div", { style: { maxWidth: 640, margin: "0 auto", padding: "20px 16px 40px", display: "flex", flexDirection: "column", gap: 8 } },
+          e("div", { style: { background: C.celesteLight, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 16px", fontSize: 12.5, color: C.celesteDark, fontWeight: 500 } },
+            "Весь материал книги A1, но порядок и подача переработаны — это не копия учебника."),
+          LESSONS.map(l => e(LessonRow, {
+            key: l.id, emoji: l.emoji, title: "Урок " + l.id + ". " + l.title, titleRu: l.titleRu, sub: l.sub,
+            badge: l.phrases.length + " слов", onClick: () => setScreen({ page: "lesson", lessonId: l.id })
+          }))
+        )
+      ),
+
+      screen.page === "lesson" && e(LessonScreen, { lesson: LESSONS.find(l => l.id === screen.lessonId), onBack: () => setScreen({ page: "home" }) })
+    );
+  }
+
+  // ===== ПРОСТОЙ БАРЬЕР ДОСТУПА ПО КОДУ (как в app.html) =====
+  // Код доступа для курса А1. Чтобы сменить — поменяй строку ниже (и выдавай новый код в боте).
+  var ACCESS_CODE = "A1HABLA2026";
+  var GATE_KEY = "habla-a1-access-ok";
+
+  function renderApp() {
+    ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+  }
+
+  function showGate() {
+    var root = document.getElementById("root");
+    root.innerHTML =
+      '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+      'font-family:\'Rubik\',-apple-system,\'Segoe UI\',Roboto,sans-serif;background:#FDFDFB;padding:24px">' +
+      '<div style="max-width:360px;width:100%;text-align:center">' +
+      '<div style="font-size:26px;font-weight:800;color:#1C2B45;margin-bottom:10px">Habla Argentina — курс А1</div>' +
+      '<div style="font-size:15px;color:#7A8699;margin-bottom:20px">Введи код доступа, который прислал бот после оплаты</div>' +
+      '<input id="gate-input" type="text" placeholder="КОД ДОСТУПА" style="width:100%;box-sizing:border-box;' +
+      'padding:14px 16px;font-size:16px;border:2px solid #DCE6F0;border-radius:12px;text-align:center;' +
+      'text-transform:uppercase;font-family:inherit;margin-bottom:12px" />' +
+      '<div id="gate-err" style="color:#D95555;font-size:13.5px;min-height:18px;margin-bottom:10px"></div>' +
+      '<button id="gate-btn" style="width:100%;padding:14px;font-size:16px;font-weight:700;color:#fff;' +
+      'background:#74ACDF;border:none;border-radius:12px;cursor:pointer;font-family:inherit">Открыть курс</button>' +
+      '</div></div>';
+
+    var input = document.getElementById("gate-input");
+    var btn = document.getElementById("gate-btn");
+    var err = document.getElementById("gate-err");
+
+    function tryOpen() {
+      var val = (input.value || "").trim().toUpperCase();
+      if (val === ACCESS_CODE) {
+        try { localStorage.setItem(GATE_KEY, "1"); } catch (e) {}
+        root.innerHTML = "";
+        renderApp();
+      } else {
+        err.textContent = "Неверный код. Проверь сообщение от бота.";
+        input.style.borderColor = "#D95555";
+      }
+    }
+    btn.addEventListener("click", tryOpen);
+    input.addEventListener("keydown", function (ev) { if (ev.key === "Enter") tryOpen(); });
+  }
+
+  // Если код уже вводили раньше на этом устройстве — не спрашиваем снова.
+  var alreadyOk = false;
+  try { alreadyOk = localStorage.getItem(GATE_KEY) === "1"; } catch (e) {}
+  // Автопропуск по ссылке с кодом: hablaargentina.com/a1.html?code=A1HABLA2026
+  try {
+    var qp = new URLSearchParams(window.location.search).get("code");
+    if (qp && qp.trim().toUpperCase() === ACCESS_CODE) {
+      localStorage.setItem(GATE_KEY, "1");
+      alreadyOk = true;
+    }
+  } catch (e) {}
+
+  if (alreadyOk) renderApp(); else showGate();
+})();
+</script>
+</body>
+</html>
