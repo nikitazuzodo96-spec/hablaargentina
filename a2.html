@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Habla Argentina — курс А2</title>
+<style>html,body{margin:0;background:#FDFDFB}#root{min-height:100vh}</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(() => {
+  // Компоненты/стили — паттерны app.html/a1.html (C/font/pillStyle/btnStyle/Study/Flash/Match/Rules/Quiz),
+  // обобщённые под контент всех 22 уроков курса А2. Материал книги реорганизован по темам,
+  // а не по порядку страниц самой книги.
+  const { useState, useMemo, useEffect } = React;
+  const e = React.createElement;
+
+  const C = {
+    celeste: "#74ACDF", celesteDark: "#4A86BD", celesteLight: "#EAF3FB",
+    ink: "#1C2B45", sun: "#F6B40E", paper: "#FDFDFB",
+    green: "#3B9E6D", red: "#D95555", gray: "#7A8699", border: "#DCE6F0"
+  };
+  const font = "'Rubik', -apple-system, 'Segoe UI', Roboto, sans-serif";
+
+  const btnStyle = (primary) => ({
+    background: primary ? C.celeste : "#fff", color: primary ? "#fff" : C.ink,
+    border: `2px solid ${C.celeste}`, borderRadius: 12, padding: "11px 22px",
+    fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: font
+  });
+  const pillStyle = (active) => ({
+    background: active ? C.ink : "#fff", color: active ? "#fff" : C.ink,
+    border: `1.5px solid ${active ? C.ink : C.border}`, borderRadius: 999,
+    padding: "8px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer",
+    fontFamily: font, transition: "all .15s"
+  });
+
+  function Sun({ size = 22 }) {
+    return e("svg", { width: size, height: size, viewBox: "0 0 32 32", style: { flexShrink: 0 } },
+      [...Array(12)].map((_, i) => e("line", { key: i, x1: "16", y1: "3", x2: "16", y2: "8", stroke: C.sun, strokeWidth: "2.2", strokeLinecap: "round", transform: `rotate(${i * 30} 16 16)` })),
+      e("circle", { cx: "16", cy: "16", r: "6.5", fill: C.sun })
+    );
+  }
+
+  function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+  const p = (es, tr, ru) => ({ es, tr, ru });
+
+const LESSONS = [
+{
+    id: 1,
+    emoji: "🔤",
+    title: "Presente: verbos regulares e irregulares",
+    titleRu: "Настоящее время: правильные и неправильные глаголы",
+    sub: "база / глаголы",
+    phrases: [
+      p("amar", "ама́р", "любить"),
+      p("comer", "комэ́р", "есть"),
+      p("vivir", "виви́р", "жить"),
+      p("bailar", "байля́р", "танцевать"),
+      p("cantar", "канта́р", "петь"),
+      p("correr", "коррэ́р", "бегать"),
+      p("escuchar", "эскуча́р", "слушать"),
+      p("estudiar", "эстудиа́р", "учиться"),
+      p("hablar", "абла́р", "говорить"),
+      p("llegar", "шега́р", "приходить"),
+      p("mirar", "мира́р", "смотреть"),
+      p("trabajar", "трабаха́р", "работать"),
+      p("viajar", "вьяха́р", "путешествовать"),
+      p("querer", "кэрэ́р", "хотеть/любить"),
+      p("poder", "подэ́р", "мочь"),
+      p("pedir", "педи́р", "просить"),
+      p("construir", "конструи́р", "строить"),
+      p("conocer", "коносэ́р", "знать (быть знакомым)"),
+      p("salir", "сали́р", "выходить"),
+      p("saber", "сабэ́р", "знать (факт)"),
+      p("tener", "тэнэ́р", "иметь"),
+      p("venir", "вени́р", "приходить"),
+      p("decir", "деси́р", "говорить"),
+      p("oír", "ои́р", "слышать")
+    ],
+    rules: [
+      {
+        rule: "Настоящее время правильных глаголов (-AR, -ER, -IR)",
+        body: "В аргентинском варианте испанского вместо «tú» используется «vos» — форма 2-го лица единственного числа неформального обращения. «Ustedes» служит и формальным, и неформальным обращением во множественном числе.",
+        ex: [
+          ["Yo hablo español.", "Я говорю по-испански."],
+          ["Vos hablás muy bien.", "Ты говоришь очень хорошо. (voseo!)"],
+          ["Nosotros vivimos en Buenos Aires.", "Мы живём в Буэнос-Айресе."]
+        ]
+      },
+      {
+        rule: "Глаголы с изменением корня (e→ie, o→ue, e→i, i→y)",
+        body: "QUERER (e→ie): quiero, querés, quiere — хотеть/любить. PODER (o→ue): puedo, podés, puede — мочь. PEDIR (e→i): pido, pedís, pide — просить. CONSTRUIR (i→y): construyo, construís, construye — строить.",
+        ex: [
+          ["Vos jugás muy bien al fútbol.", "Ты хорошо играешь в футбол."]
+        ]
+      },
+      {
+        rule: "Полностью неправильные глаголы в настоящем времени",
+        body: "SER: soy, sos, es, somos, son — быть (по сути). IR: voy, vas, va, vamos, van — идти/ехать. ESTAR: estoy, estás, está, estamos, están — быть (местоположение). DAR: doy, das, da, damos, dan — давать. CONOCER: conozco, conocés, conoce. SALIR: salgo, salís, sale. SABER: sé, sabés, sabe.",
+        ex: [
+          ["Yo soy profesor.", "Я преподаватель."],
+          ["Vos sabés mucho.", "Ты много знаешь."]
+        ]
+      },
+      {
+        rule: "Глаголы с двойным изменением",
+        body: "TENER (-g-, e→ie): tengo, tenés, tiene, tenemos, tienen — иметь. VENIR (-g-, e→ie): vengo, venís, viene, venimos, vienen — приходить. DECIR (-ig-, e→i): digo, decís, dice, decimos, dicen — говорить. OÍR (-ig-, y): oigo, oís, oye, oímos, oyen — слышать.",
+        ex: [
+          ["Yo tengo dos hermanos.", "У меня двое братьев/сестёр."],
+          ["Vos decís la verdad.", "Ты говоришь правду."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    emoji: "🧭",
+    title: "Ser y Estar: los mnemónicos DOCTOR y PLACE",
+    titleRu: "Ser и Estar: мнемоники DOCTOR и PLACE",
+    sub: "описание / идентичность",
+    phrases: [
+      p("rico/a", "ри́ко / ри́ка", "вкусный"),
+      p("frío/a", "фри́о / фри́а", "холодный"),
+      p("ingeniero/a", "инхэнье́ро / инхэнье́ра", "инженер"),
+      p("estudiante", "эстудья́нтэ", "студент(ка)"),
+      p("dentista", "дэнти́ста", "стоматолог"),
+      p("tímido/a", "ти́мидо / ти́мида", "застенчивый"),
+      p("profesional", "професьона́ль", "профессиональный"),
+      p("hoy / mañana", "ой / манья́на", "сегодня / завтра"),
+      p("¿Qué hora es?", "кэ о́ра эс", "Который час?"),
+      p("de dónde", "дэ до́ндэ", "откуда"),
+      p("amigos/as", "ами́гос / ами́гас", "друзья"),
+      p("hermanos/as", "эрма́нос / эрма́нас", "братья/сёстры"),
+      p("al lado de", "аль ля́до дэ", "рядом с"),
+      p("sobre / cerca de", "со́брэ / сэ́рка дэ", "на / рядом с"),
+      p("cocinando", "косина́ндо", "готовя (еду)"),
+      p("enfermo/a", "эмфэ́рмо / эмфэ́рма", "больной"),
+      p("ocupado/a", "окупа́до / окупа́да", "занятый"),
+      p("cansado/a", "канса́до / канса́да", "уставший"),
+      p("contento/a", "контэ́нто / контэ́нта", "довольный"),
+      p("enojado/a", "эноха́до / эноха́да", "злой"),
+      p("preocupado/a", "прэокупа́до / прэокупа́да", "обеспокоенный")
+    ],
+    rules: [
+      {
+        rule: "SER = DOCTOR (постоянные характеристики)",
+        body: "Descripción (описание), Ocupación (профессия), Características (характеристики), Tiempo (время/даты), Origen (происхождение), Relaciones (отношения) — все эти категории требуют глагола SER.",
+        ex: [
+          ["El té es rico.", "Чай вкусный."],
+          ["Sofía es Ingeniera.", "София — инженер."],
+          ["Él es tímido.", "Он застенчивый."],
+          ["Hoy es lunes. Es la una.", "Сегодня понедельник. Час."]
+        ]
+      },
+      {
+        rule: "ESTAR = PLACE (местоположение, временное состояние)",
+        body: "Posición, Localización, Acción (progresiva), Condición, Emoción — все эти категории требуют глагола ESTAR.",
+        ex: [
+          ["La lámpara está al lado del sofá.", "Лампа стоит рядом с диваном."],
+          ["Mariela está cocinando.", "Мариэла готовит еду."],
+          ["Él está enfermo.", "Он болен."],
+          ["Ellos están contentos.", "Они довольны/рады."]
+        ]
+      },
+      {
+        rule: "Дни недели и время",
+        body: "Дни недели: lunes, martes, miércoles, jueves, viernes, sábado, domingo. В единственном числе — «Es la una» (Час), во множественном — «Son las dos/tres...» (Два/три часа).",
+        ex: [
+          ["Hoy es lunes. Mañana es martes.", "Сегодня понедельник. Завтра вторник."],
+          ["Son las tres.", "Три часа."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 3,
+    emoji: "🏠",
+    title: "Tener y Hay: posesión y existencia",
+    titleRu: "Tener и Hay: обладание и существование",
+    sub: "семья / быт",
+    phrases: [
+      p("la familia", "ля фами́лья", "семья"),
+      p("los hermanos", "лос эрма́нос", "братья/сёстры"),
+      p("los primos", "лос при́мос", "двоюродные братья/сёстры"),
+      p("los abuelos", "лос абуэ́лос", "бабушка и дедушка"),
+      p("tener hambre", "тэнэ́р а́мбрэ", "быть голодным"),
+      p("tener frío / calor", "тэнэ́р фри́о / калёр", "мёрзнуть / испытывать жару"),
+      p("tener miedo", "тэнэ́р мье́до", "бояться"),
+      p("tener sed", "тэнэ́р сэд", "хотеть пить"),
+      p("tener sueño", "тэнэ́р суэ́ньо", "хотеть спать"),
+      p("¿Cuántos años tenés?", "куа́нтос а́ньос тэнэ́с", "Сколько тебе лет? (vos)"),
+      p("hay / hubo", "ай / у́бо", "есть / было (безличн.)"),
+      p("mucho/a, muchos/as", "му́чо / му́ча, му́чос / му́час", "много"),
+      p("poco/a, pocos/as", "по́ко / по́ка, по́кос / по́кас", "мало"),
+      p("el subte", "эль су́бтэ", "метро (арг.)"),
+      p("el colectivo", "эль колекти́во", "автобус (арг.)"),
+      p("el barrio", "эль ба́ррьо", "район"),
+      p("Plaza de Mayo, San Telmo, La Boca, Puerto Madero, Retiro", "пля́са дэ ма́шо, сан тэ́льмо, ля бо́ка, пуэ́рто мадэ́ро, рэти́ро", "районы/места Буэнос-Айреса")
+    ],
+    rules: [
+      {
+        rule: "TENER — обладание, возраст, идиомы",
+        body: "Используется для семьи, возраста, а также в устойчивых идиомах (соответствуют русским конструкциям «быть + прилагательное»).",
+        ex: [
+          ["¿Cuántos hermanos tenés?", "Сколько у тебя братьев/сестёр? (vos)"],
+          ["Tengo 23 años.", "Мне 23 года."],
+          ["Tengo hambre.", "Я голоден."],
+          ["Ella tiene frío.", "Ей холодно."]
+        ]
+      },
+      {
+        rule: "HABER (безличная форма HAY) — существование",
+        body: "HAY не спрягается по лицам — она инвариантна. Модели: Hay + un/una/unos/unas; Hay + poco/poca/pocos/pocas; Hay + mucho/mucha/muchos/muchas.",
+        ex: [
+          ["Hay una torta en la mesa.", "На столе есть торт."],
+          ["En la clase hay unas sillas y una mesa.", "В классе есть несколько стульев и стол."]
+        ]
+      },
+      {
+        rule: "Прошедшая форма hay → hubo",
+        body: "В прошедшем времени безличное «hay» превращается в «hubo».",
+        ex: [
+          ["Hoy hay una fiesta en mi casa.", "Сегодня у меня дома вечеринка."],
+          ["Ayer hubo una fiesta en mi casa.", "Вчера у меня дома была вечеринка."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 4,
+    emoji: "🪞",
+    title: "Rutina diaria: verbos reflexivos",
+    titleRu: "Ежедневная рутина: возвратные глаголы",
+    sub: "распорядок дня / тело",
+    phrases: [
+      p("afeitarse", "афейта́рсэ", "бриться"),
+      p("bañarse / ducharse", "банья́рсэ / дуча́рсэ", "купаться / принимать душ"),
+      p("depilarse las axilas", "дэпиля́рсэ лас акси́лас", "делать эпиляцию подмышек"),
+      p("lavarse las manos", "ляба́рсэ лас ма́нос", "мыть руки"),
+      p("lavarse los dientes", "ляба́рсэ лос дье́нтэс", "чистить зубы"),
+      p("maquillarse / desmaquillarse", "макиша́рсэ / дэсмакиша́рсэ", "краситься / снимать макияж"),
+      p("ponerse desodorante", "понэ́рсэ дэсодора́нтэ", "пользоваться дезодорантом"),
+      p("ponerse perfume", "понэ́рсэ пэрфу́мэ", "пользоваться духами"),
+      p("despertarse", "дэспэрта́рсэ", "просыпаться"),
+      p("levantarse", "лебанта́рсэ", "вставать"),
+      p("vestirse", "вэсти́рсэ", "одеваться"),
+      p("acostarse", "акоста́рсэ", "ложиться спать"),
+      p("asesor financiero", "асэсо́р финансье́ро", "финансовый консультант"),
+      p("contador/a", "контадо́р / контадо́ра", "бухгалтер"),
+      p("la remera", "ля рэмэ́ра", "футболка (арг.)"),
+      p("el buzo", "эль бу́со", "толстовка (арг.)"),
+      p("el pantalón deportivo", "эль пантало́н дэпорти́во", "спортивные штаны"),
+      p("las zapatillas", "лас сапати́шас", "кроссовки"),
+      p("la pollera", "ля пошэ́ра", "юбка (арг.)"),
+      p("los lentes", "лос лэ́нтэс", "очки"),
+      p("distraído/a", "дистраи́до / дистраи́да", "рассеянный"),
+      p("la tarea", "ля тарэ́а", "домашнее задание")
+    ],
+    rules: [
+      {
+        rule: "Возвратные глаголы",
+        body: "Действие возвращается на само подлежащее (yo → me, vos → te, nosotros → nos и т.д.). Возвратные глаголы в инфинитиве оканчиваются на «-se»: bañar → bañarse, poner → ponerse, ir → irse.",
+        ex: [
+          ["Yo me baño.", "Я купаюсь."]
+        ]
+      },
+      {
+        rule: "Спряжение возвратных местоимений",
+        body: "yo/me, vos/te, él-ella-usted/se, nosotros/nos, ustedes-ellos-ellas/se.",
+        ex: [
+          ["Vos te bañás.", "Ты купаешься."],
+          ["Nosotros nos despertamos temprano.", "Мы просыпаемся рано."]
+        ]
+      },
+      {
+        rule: "Возвратные глаголы повседневной рутины",
+        body: "despertarse — просыпаться, levantarse — вставать, bañarse/ducharse — купаться/принимать душ, lavarse los dientes — чистить зубы, afeitarse — бриться, peinarse — причёсываться, vestirse — одеваться, acostarse — ложиться спать, dormirse — засыпать.",
+        ex: [
+          ["Yo me llamo Jorge. Todos los días me despierto a las 6:00 h, me levanto, me baño, me lavo los dientes, me afeito, me peino, me visto y me pongo los zapatos.", "Меня зовут Хорхе. Каждый день я просыпаюсь в 6:00, встаю, принимаю душ, чищу зубы, бреюсь, причёсываюсь, одеваюсь и обуваюсь."],
+          ["Soy muy distraído, y a veces me olvido de los lentes.", "Я очень рассеянный, и иногда забываю очки."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 5,
+    emoji: "🎬",
+    title: "Presente continuo: ¿Qué estás haciendo?",
+    titleRu: "Настоящее продолженное время: Что ты сейчас делаешь?",
+    sub: "действия в моменте",
+    phrases: [
+      p("estar trabajando", "эста́р трабаха́ндо", "работать (сейчас)"),
+      p("estar cocinando", "эста́р косина́ндо", "готовить (сейчас)"),
+      p("estar durmiendo", "эста́р дурмье́ндо", "спать (сейчас)"),
+      p("estar leyendo", "эста́р лешэ́ндо", "читать (сейчас)"),
+      p("estar hablando por teléfono", "эста́р абля́ндо пор тэлэ́фоно", "разговаривать по телефону"),
+      p("estar barriendo", "эста́р баррье́ндо", "подметать"),
+      p("estar lavándose los dientes", "эста́р лаба́ндосэ лос дье́нтэс", "чистить зубы (сейчас)"),
+      p("en este momento", "эн э́стэ момэ́нто", "в этот момент"),
+      p("ahora mismo", "ао́ра ми́смо", "прямо сейчас"),
+      p("tus padres", "тус па́дрэс", "твои родители"),
+      p("tu novio/a", "ту но́вьо / но́вья", "твой парень/девушка"),
+      p("tu estrella favorita", "ту эстрэ́шя фаворита́", "твоя любимая звезда/знаменитость")
+    ],
+    rules: [
+      {
+        rule: "Формула: ESTAR + GERUNDIO",
+        body: "Используется для описания действия, происходящего именно сейчас, в момент речи.",
+        ex: [
+          ["No puedo ir a bailar. Estoy trabajando.", "Я не могу пойти танцевать. Я (сейчас) работаю."]
+        ]
+      },
+      {
+        rule: "Образование герундия",
+        body: "-AR → -ando (hablar → hablando). -ER/-IR → -iendo (comer → comiendo, escribir → escribiendo).",
+        ex: [
+          ["Estoy hablando.", "Я (сейчас) говорю."],
+          ["Estamos escribiendo.", "Мы (сейчас) пишем."]
+        ]
+      },
+      {
+        rule: "Спряжение ESTAR + герундий",
+        body: "yo estoy, vos estás, él/ella/usted está, nosotros estamos, ustedes/ellos/ellas están + gerundio.",
+        ex: [
+          ["¿Qué estás haciendo?", "Что ты сейчас делаешь? (vos)"],
+          ["Ellos están durmiendo.", "Они сейчас спят."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 6,
+    emoji: "⏳",
+    title: "Pretérito simple: regulares y los primeros irregulares",
+    titleRu: "Простое прошедшее время: правильные глаголы и первые неправильные",
+    sub: "прошлое / рассказ о вчера",
+    phrases: [
+      p("hablar", "абла́р", "говорить"),
+      p("viajar", "вьяха́р", "путешествовать"),
+      p("trabajar", "трабаха́р", "работать"),
+      p("estudiar", "эстудья́р", "учиться"),
+      p("esperar", "эспэра́р", "ждать"),
+      p("escuchar", "эскуча́р", "слушать"),
+      p("tomar", "тома́р", "брать/пить"),
+      p("cocinar", "косина́р", "готовить"),
+      p("aprender", "апрэндэ́р", "учить(ся)"),
+      p("creer", "крээ́р", "верить/считать"),
+      p("correr", "коррэ́р", "бегать"),
+      p("beber", "бэбэ́р", "пить"),
+      p("conocer", "коносэ́р", "знать/познакомиться"),
+      p("vivir", "виви́р", "жить"),
+      p("escribir", "эскриби́р", "писать"),
+      p("asistir", "асисти́р", "посещать"),
+      p("compartir", "компарти́р", "делиться"),
+      p("decidir", "дэсиди́р", "решать"),
+      p("describir", "дэскриби́р", "описывать"),
+      p("desayunar", "дэсашуна́р", "завтракать"),
+      p("ducharse", "дуча́рсэ", "принимать душ"),
+      p("acostarse", "акоста́рсэ", "ложиться спать"),
+      p("sonar el despertador", "сона́р эль дэспэртадо́р", "звонить будильнику"),
+      p("tener una reunión", "тэнэ́р у́на рэуньо́н", "иметь встречу/совещание"),
+      p("ayer", "аше́р", "вчера"),
+      p("anteayer", "антэаше́р", "позавчера"),
+      p("anoche", "ано́че", "вчера вечером/ночью"),
+      p("el otro día", "эль о́тро ди́а", "на днях, недавно"),
+      p("la semana pasada", "ля сэма́на паса́да", "на прошлой неделе"),
+      p("el mes/año pasado", "эль мэс / а́ньо паса́до", "в прошлом месяце/году"),
+      p("hace dos días / tres años", "а́сэ дос ди́ас / трэс а́ньос", "два дня/три года назад"),
+      p("nacer", "насэ́р", "родиться")
+    ],
+    rules: [
+      {
+        rule: "Употребление претерито",
+        body: "Претерито используется для завершённых в прошлом действий.",
+        ex: [
+          ["Ayer fui a cenar.", "Вчера я пошёл ужинать."],
+          ["El otro día corrí mucho.", "На днях я много бегал."],
+          ["El año pasado tuve mucho trabajo.", "В прошлом году у меня было много работы."]
+        ]
+      },
+      {
+        rule: "Регулярное спряжение",
+        body: "-AR (esperar): esperé, esperaste, esperó, esperamos, esperaron. -ER (comer): comí, comiste, comió, comimos, comieron. -IR (escribir): escribí, escribiste, escribió, escribimos, escribieron.",
+        ex: [
+          ["Ayer esperé el colectivo una hora.", "Вчера я час ждал автобус."],
+          ["Escribí una carta.", "Я написал письмо."]
+        ]
+      },
+      {
+        rule: "Первые ключевые неправильные глаголы",
+        body: "SER/IR совпадают по форме: fui, fuiste, fue, fuimos, fueron. HACER: hice, hiciste, hizo, hicimos, hicieron. TENER: tuve, tuviste, tuvo, tuvimos, tuvieron. ESTAR: estuve, estuviste, estuvo, estuvimos, estuvieron.",
+        ex: [
+          ["Ayer salí de casa a las 21:30 h.", "Вчера я вышел из дома в 21:30."],
+          ["En 1914 comenzó la Primera Guerra Mundial.", "В 1914 году началась Первая мировая война."],
+          ["En Buenos Aires fui tres veces a Retiro.", "В Буэнос-Айресе я три раза ездил в Ретиро."]
+        ]
+      },
+      {
+        rule: "Пример текста для чтения",
+        body: "Рассказ о вчерашнем дне в претерито — иллюстрация комбинации правильных и неправильных глаголов.",
+        ex: [
+          ["Ayer salí temprano de casa y fui a visitar a mi abuela.", "Вчера я рано вышла из дома и навестила бабушку."],
+          ["Después, fui al supermercado y compré muchas cosas.", "Потом пошла в супермаркет и купила много всего."],
+          ["Por la tarde, hice ejercicio en el parque y luego cociné una deliciosa cena.", "Днём позанималась спортом в парке, затем приготовила вкусный ужин."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 7,
+    emoji: "⏳",
+    title: "Pretérito simple: más verbos irregulares",
+    titleRu: "Простое прошедшее время: больше неправильных глаголов",
+    sub: "прошлое / глаголы-исключения",
+    phrases: [
+      p("pagar", "пага́р", "платить"),
+      p("la tarjeta", "ля тархэ́та", "карта"),
+      p("el efectivo", "эль эфэкти́во", "наличные"),
+      p("llamar", "шама́р", "звонить"),
+      p("volver a + infinitivo", "вольвэ́р а + инфинити́во", "снова сделать что-то"),
+      p("probar", "проба́р", "пробовать"),
+      p("quedarse (en un hotel)", "кэда́рсэ (эн ун отэ́ль)", "останавливаться (в отеле)"),
+      p("la pileta", "ля пилэ́та", "бассейн (арг.)"),
+      p("los recuerdos", "лос рэкуэ́рдос", "сувениры"),
+      p("los regalos", "лос рэга́лос", "подарки"),
+      p("nadar", "нада́р", "плавать"),
+      p("aburrirse", "абурри́рсэ", "скучать"),
+      p("divertirse", "дивэрти́рсэ", "веселиться"),
+      p("la costa / la playa", "ля ко́ста / ля пла́ша", "побережье / пляж"),
+      p("tereré", "тэрэрэ́", "терере (холодный мате)")
+    ],
+    rules: [
+      {
+        rule: "Неправильные глаголы с изменённой основой (окончания -e/-iste/-o/-imos/-ieron)",
+        body: "PODER: pude, pudiste, pudo, pudimos, pudieron — мочь. PONER: puse, pusiste, puso, pusimos, pusieron — класть. SABER: supe, supiste, supo, supimos, supieron — знать. QUERER: quise, quisiste, quiso, quisimos, quisieron — хотеть. DECIR: dije, dijiste, dijo, dijimos, dijeron — сказать. TRAER: traje, trajiste, trajo, trajimos, trajeron — приносить. VENIR: vine, viniste, vino, vinimos, vinieron — приходить. ANDAR: anduve, anduviste, anduvo, anduvimos, anduvieron — ходить. DAR: di, diste, dio, dimos, dieron — давать.",
+        ex: [
+          ["¿Podés pagarlo?", "Можешь это оплатить? (vos)"],
+          ["Le dije la verdad.", "Я сказал ему правду."]
+        ]
+      },
+      {
+        rule: "Глаголы движения: IR/VENIR/VOLVER/LLEVAR/TRAER",
+        body: "IR = движение к месту, отличному от места говорящего. VENIR = движение к месту говорящего. VOLVER = возврат в исходное место (volví, volviste, volvió, volvimos, volvieron). LLEVAR = перемещение объекта в другое место (llevé, llevaste, llevó, llevamos, llevaron). TRAER = перемещение объекта к месту говорящего.",
+        ex: [
+          ["Yo voy a la casa de Mariana.", "Я иду в дом Марианы."],
+          ["Julieta viene a mi casa.", "Джульета приходит ко мне домой."],
+          ["Yo vuelvo a mi casa.", "Я возвращаюсь домой."],
+          ["Llevamos a nuestro perro al parque.", "Мы ведём собаку в парк."]
+        ]
+      },
+      {
+        rule: "Глаголы, неправильные только в 3-м лице",
+        body: "Тип creer/leer/construir/oír (y-написание): LEER: leí, leíste, leyó, leímos, leyeron. Тип pedir/sentir/dormir (e→i, o→u только в 3-м лице): PEDIR: pedí, pediste, pidió, pedimos, pidieron. DORMIR: dormí, dormiste, durmió, dormimos, durmieron. Тип -DUCIR: CONDUCIR: conduje, condujiste, condujo, condujimos, condujeron.",
+        ex: [
+          ["¿Vos leíste el diario?", "Ты читал газету? (vos)"],
+          ["Ella durmió muy bien.", "Она хорошо спала."]
+        ]
+      },
+      {
+        rule: "\"Parecer\" — выражение мнения о прошлом",
+        body: "Используется для оценки прошедшего опыта — единственное число для одной вещи, множественное для нескольких.",
+        ex: [
+          ["¿Qué te pareció Atenas?", "Что ты думаешь об Афинах?"],
+          ["¿Qué te parecieron las vacaciones?", "Что ты думаешь об отпуске?"],
+          ["La comida estuvo muy sabrosa.", "Еда была очень вкусной."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 8,
+    emoji: "🏆",
+    title: "Biografías: personas famosas de Argentina",
+    titleRu: "Биографии: знаменитые аргентинцы",
+    sub: "биография / культура",
+    phrases: [
+      p("nacer", "насэ́р", "родиться"),
+      p("crecer", "крэсэ́р", "расти"),
+      p("fallecer", "фашэсэ́р", "скончаться"),
+      p("casarse", "каса́рсэ", "жениться/выходить замуж"),
+      p("separarse / divorciarse", "сэпара́рсэ / диворсья́рсэ", "расставаться / разводиться"),
+      p("ganar medallas / premios", "гана́р мэда́шас / прэ́мьос", "выигрывать медали / награды"),
+      p("una carrera exitosa", "у́на каррэ́ра эксито́са", "успешная карьера"),
+      p("participar en competiciones", "партисипа́р эн компэтисьо́нэс", "участвовать в соревнованиях"),
+      p("ser considerado/a uno/a de los mejores", "сэр консидэра́до у́но дэ лос мэхо́рэс", "считаться одним из лучших"),
+      p("representar a su país", "рэпрэсэнта́р а су паи́с", "представлять свою страну")
+    ],
+    rules: [
+      {
+        rule: "Написание биографии — структура вопросов",
+        body: "Используйте Pretérito Simple для перечисления ключевых событий жизни: ¿Cuándo/Dónde nació? ¿Dónde estudió? ¿De qué trabajó? ¿Se casó? ¿Se divorció? ¿Tuvo hijos? ¿Ganó premios? ¿Por qué es/fue importante?",
+        ex: [
+          ["¿Dónde naciste vos?", "Где ты родился? (vos)"],
+          ["¿Estudiaste en la universidad?", "Ты учился в университете? (vos)"]
+        ]
+      },
+      {
+        rule: "Глагол NACER и другие биографические глаголы",
+        body: "nacer — родиться, crecer — расти, mudarse — переезжать, fallecer/morir — скончаться/умереть, participar — участвовать, ganar — выигрывать.",
+        ex: [
+          ["Luciana Aymar nació en Rosario, Argentina en 1977.", "Лусиана Аймар родилась в Росарио, Аргентина, в 1977 году."],
+          ["Comenzó a jugar hockey a los 7 años.", "Начала играть в хоккей в 7 лет."]
+        ]
+      },
+      {
+        rule: "Приём «перевод из настоящего в прошлое»",
+        body: "Текст дан в настоящем времени (историческое настоящее, часто используемое в биографиях), студент переписывает в претерито.",
+        ex: [
+          ["Nace en Buenos Aires... → Nació en Buenos Aires...", "Родился в Буэнос-Айресе (наст. → прош.)"],
+          ["Manu Ginóbili nació en Bahía Blanca, Argentina en 1977. En el 2002 comenzó a jugar para San Antonio Spurs hasta el 2018.", "Ману Хинобили родился в Баия-Бланка в 1977 году. В 2002 году начал играть за «Сан-Антонио Спёрс» до 2018 года."],
+          ["Lionel Messi nació en 1987 y fue muy famoso por su talento en el FC Barcelona.", "Лионель Месси родился в 1987 году и прославился своим талантом в «Барселоне»."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 9,
+    emoji: "👉",
+    title: "El objeto directo (OD)",
+    titleRu: "Прямое дополнение и его местоимения",
+    sub: "грамматика / местоимения",
+    phrases: [
+      p("comprar / vender", "компра́р / вэндэ́р", "покупать / продавать"),
+      p("leer / escuchar", "лээ́р / эскуча́р", "читать / слушать"),
+      p("arreglar", "аррэгля́р", "чинить/ремонтировать"),
+      p("lavar / planchar", "ляба́р / плянча́р", "стирать / гладить"),
+      p("llevar / traer", "шеба́р / траэ́р", "нести/относить / приносить"),
+      p("guardar", "гуарда́р", "хранить"),
+      p("entender / comprender", "энтэндэ́р / компрэндэ́р", "понимать"),
+      p("conocer", "коносэ́р", "знать/быть знакомым"),
+      p("llamar", "шама́р", "звонить"),
+      p("extrañar", "экстранья́р", "скучать по кому-то"),
+      p("sacar fotocopias", "сака́р фотоко́пьяс", "делать ксерокопии"),
+      p("ordenar el escritorio", "ордэна́р эль эскрито́рьо", "убирать письменный стол"),
+      p("repartir folletos", "рэпарти́р фошэ́тос", "раздавать буклеты"),
+      p("el celular / la computadora", "эль сэлюля́р / ля компьюта́дора", "мобильный / компьютер")
+    ],
+    rules: [
+      {
+        rule: "Что такое прямое дополнение",
+        body: "Лицо/животное/предмет, которое напрямую получает действие глагола. Перед прямым дополнением-человеком используется личное «a».",
+        ex: [
+          ["Yo leo el periódico.", "Я читаю газету. (el periódico — objeto directo)"],
+          ["Marcos ama a Ana.", "Маркос любит Ану. (a Ana)"]
+        ]
+      },
+      {
+        rule: "Местоимения прямого дополнения",
+        body: "yo→me, vos/tú→te, él/ella/usted→lo/la, nosotros→nos, ustedes/ellos/ellas→los/las.",
+        ex: [
+          ["¿Compraste el pan? No, no lo compré.", "Ты купил хлеб? Нет, я его не купил."]
+        ]
+      },
+      {
+        rule: "Расстановка местоимений",
+        body: "Перед спрягаемым глаголом (отдельно). С инфинитивом — до вспомогательного глагола или приклеивается к инфинитиву. С герундием — аналогично.",
+        ex: [
+          ["¿Querés pagarlo? / ¿Lo querés pagar?", "Хочешь оплатить это? (vos)"],
+          ["¿Estás leyéndolo? / ¿Lo estás leyendo?", "Ты это читаешь? (vos)"]
+        ]
+      },
+      {
+        rule: "Модель-трансформация (замена существительного местоимением)",
+        body: "Существительное можно заменить местоимением, чтобы избежать повторов.",
+        ex: [
+          ["Esta es mi moto. Compré mi moto el año pasado. No uso mucho mi moto.", "Это мой мотоцикл. Я купил мой мотоцикл в прошлом году. Я почти не использую мой мотоцикл. (без местоимений)"],
+          ["Esta es mi moto. La compré el año pasado. No la uso mucho.", "Это мой мотоцикл. Я купил его в прошлом году. Я его почти не использую."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 10,
+    emoji: "💬",
+    title: "El objeto indirecto (OI)",
+    titleRu: "Косвенное дополнение и его местоимения",
+    sub: "грамматика / общение",
+    phrases: [
+      p("dar", "дар", "давать"),
+      p("dar una mano", "дар у́на ма́но", "помогать"),
+      p("regalar", "рэгаля́р", "дарить"),
+      p("enviar / mandar", "эмбьяр / манда́р", "отправлять / посылать"),
+      p("servir", "сэрви́р", "подавать/обслуживать"),
+      p("pedir", "педи́р", "просить"),
+      p("contar", "конта́р", "рассказывать"),
+      p("explicar", "эксплика́р", "объяснять"),
+      p("preguntar / responder", "прэгунта́р / рэспондэ́р", "спрашивать / отвечать"),
+      p("mostrar", "мостра́р", "показывать"),
+      p("prometer", "промэтэ́р", "обещать"),
+      p("la nafta", "ля на́фта", "бензин (арг.)"),
+      p("cargar nafta", "карга́р на́фта", "заправлять машину бензином"),
+      p("pasame un mate", "па́самэ ун ма́тэ", "передай мне мате (сленг)"),
+      p("ponerse las pilas", "понэ́рсэ лас пи́лас", "взяться за дело, «включиться»"),
+      p("el pibe", "эль пи́бэ", "парень, пацан (арг. сленг)")
+    ],
+    rules: [
+      {
+        rule: "Что такое косвенное дополнение",
+        body: "Лицо/животное/предмет, которое косвенно получает действие. Отвечает на вопросы «кому?»/«для кого?».",
+        ex: [
+          ["Luis compra un regalo para su novia.", "Луис покупает подарок своей девушке. (un regalo — OD, para su novia — OI)"]
+        ]
+      },
+      {
+        rule: "Местоимения косвенного дополнения",
+        body: "yo→me, vos/tú→te, él/ella→le, nosotros→nos, ustedes/ellos/ellas→les.",
+        ex: [
+          ["Le mandé el mensaje a mi jefe.", "Я отправила ЕМУ сообщение, своему начальнику."]
+        ]
+      },
+      {
+        rule: "Расстановка и дублирование",
+        body: "Местоимения ставятся перед спрягаемым глаголом. Часто местоимение употребляется вместе со своим «полным» референтом в одном предложении для ясности/акцента. С инфинитивом/герундием/повелительным наклонением местоимение может приклеиваться.",
+        ex: [
+          ["Tengo que enviarle una carta.", "Мне нужно отправить ему письмо."],
+          ["Estoy enviándole una carta.", "Я отправляю ему письмо."],
+          ["Escribile una carta a tu amiga.", "Напиши письмо своей подруге. (vos-повелительное)"]
+        ]
+      },
+      {
+        rule: "Глаголы, часто требующие косвенного дополнения",
+        body: "dar, regalar, enviar, mandar, servir, pedir, decir, contar, explicar, preguntar, responder, llevar, mostrar, prometer, dar una mano.",
+        ex: [
+          ["¿Qué hago, le escribo?", "Что мне делать, написать ему?"],
+          ["Mandale un WhatsApp.", "Отправь ему WhatsApp. (vos-повелительное)"],
+          ["¿A quién le mandaste ese mensaje?", "Кому ты отправила это сообщение? (vos)"]
+        ]
+      }
+    ]
+  },
+  {
+    id: 11,
+    emoji: "💛",
+    title: "Verbos como GUSTAR: opiniones y sentimientos",
+    titleRu: "Глаголы типа GUSTAR: мнения и чувства",
+    sub: "чувства / мнения",
+    phrases: [
+      p("gustar", "густа́р", "нравиться"),
+      p("encantar", "энканта́р", "очень нравиться, обожать"),
+      p("interesar", "интэрэса́р", "интересовать"),
+      p("importar", "импорта́р", "иметь значение"),
+      p("divertir", "дивэрти́р", "развлекать"),
+      p("fascinar", "фасина́р", "восхищать"),
+      p("aburrir", "абурри́р", "наскучивать"),
+      p("preocupar", "прэокупа́р", "беспокоить"),
+      p("enojar", "эноха́р", "злить"),
+      p("molestar", "молэста́р", "раздражать"),
+      p("el jugo de naranja", "эль ху́го дэ нара́нха", "апельсиновый сок"),
+      p("la literatura rusa", "ля литэрату́ра ру́са", "русская литература"),
+      p("las medialunas", "лас мэдьялю́нас", "медиалуны (аргентинские круассаны)"),
+      p("los documentales", "лос докумэнта́лэс", "документальные фильмы"),
+      p("las obras de teatro", "лас о́брас дэ тэа́тро", "пьесы/спектакли"),
+      p("fumar", "фума́р", "курить"),
+      p("los partidos de Boca-River", "лос парти́дос дэ бо́ка-ри́вэр", "матчи Бока-Ривер"),
+      p("la carne asada", "ля ка́рнэ аса́да", "жареное мясо"),
+      p("el humo del cigarrillo", "эль у́мо дэль сигари́шо", "сигаретный дым")
+    ],
+    rules: [
+      {
+        rule: "Особая конструкция — «местоименное спряжение» (conjugación pronominal)",
+        body: "Некоторые глаголы всегда спрягаются с местоимениями косвенного дополнения. Если объект (или инфинитив-действие) один — глагол в 3-м лице единственного числа; если объектов несколько — глагол во множественном числе.",
+        ex: [
+          ["Me gusta el asado.", "Мне нравится асадо."],
+          ["Le encanta el helado de pistacho.", "Ему/ей очень нравится фисташковое мороженое."],
+          ["Me encanta pasear todos los fines de semana.", "Мне очень нравится гулять по выходным."],
+          ["Me gustan las películas argentinas.", "Мне нравятся аргентинские фильмы."]
+        ]
+      },
+      {
+        rule: "Полный список глаголов типа GUSTAR",
+        body: "gustar (нравиться), encantar (очень нравиться/обожать), interesar (интересовать), importar (иметь значение), divertir (развлекать/веселить), fascinar (восхищать), aburrir (наскучивать), preocupar (беспокоить), enojar (злить), molestar (раздражать).",
+        ex: [
+          ["Me interesa la historia.", "Меня интересует история."],
+          ["Nos aburren las clases largas.", "Нам наскучивают длинные занятия."]
+        ]
+      },
+      {
+        rule: "Синтаксис: почему «me gustAN», а не «me gustA los libros»?",
+        body: "Настоящее подлежащее предложения — не «me», а сам объект/действие, вызывающее чувство. «Me» — это косвенное дополнение (переживающий чувство). Глагол согласуется с подлежащим (объектом), а не с «me».",
+        ex: [
+          ["Me gustan las medialunas dulces.", "Сладкие медиалуны нравятся мне."],
+          ["Las medialunas dulces me gustan.", "Сладкие медиалуны мне нравятся. (обратный порядок тоже верен)"]
+        ]
+      },
+      {
+        rule: "Особое правило для возвратного употребления (3 лицо)",
+        body: "Когда эти глаголы употребляются возвратно, вместо LE/LES используется SE.",
+        ex: [
+          ["Él se divierte jugando solo.", "Он веселится, играя один."],
+          ["Los jefes se fascinaron con la presentación.", "Начальники были в восторге от презентации."],
+          ["Me gustan mucho los libros viejos.", "Мне очень нравятся старые книги."],
+          ["¡Me encanta la carne argentina!", "Обожаю аргентинское мясо!"]
+        ]
+      }
+    ]
+  },
+{
+    id: 12,
+    emoji: "🩹",
+    title: "Cuerpo y salud: el verbo DOLER",
+    titleRu: "Тело и здоровье: глагол DOLER, у врача",
+    sub: "здоровье / тело",
+    phrases: [
+      p("doler", "доле́р", "болеть"),
+      p("la rodilla", "ля роди́ша", "колено"),
+      p("el codo", "эль ко́до", "локоть"),
+      p("la muñeca", "ля мунье́ка", "запястье"),
+      p("lastimarse", "ластима́рсе", "пораниться"),
+      p("torcerse el tobillo", "торсе́рсе эль тоби́шо", "подвернуть лодыжку"),
+      p("el dolor de cabeza", "эль доло́р дэ кабе́са", "головная боль"),
+      p("el dolor de estómago", "эль доло́р дэ эсто́маго", "боль в животе"),
+      p("la aspirina", "ля аспири́на", "аспирин"),
+      p("la farmacia", "ля фарма́сиа", "аптека"),
+      p("la cita", "ля си́та", "запись (к врачу/стоматологу)"),
+      p("el kinesiólogo", "эль кинэсио́лого", "кинезиолог/физиотерапевт"),
+      p("la gripe", "ля гри́пэ", "грипп"),
+      p("el consultorio", "эль консульто́рио", "кабинет врача"),
+      p("internar", "интерна́р", "госпитализировать"),
+      p("recetar", "рэсэта́р", "прописывать (лекарство)"),
+      p("los anteojos", "лос антэо́хос", "очки"),
+      p("sentirse bien/mal", "сэнти́рсе бьен/маль", "чувствовать себя хорошо/плохо"),
+      p("tener un accidente", "тэнэ́р ун аксидэ́нтэ", "попасть в аварию/несчастный случай"),
+      p("quebrarse", "кэбра́рсе", "сломать(ся)"),
+      p("fracturarse", "фрактура́рсе", "сломать(ся)"),
+      p("el pecho", "эль пе́чо", "грудь"),
+      p("la espalda", "ля эспа́льда", "спина"),
+      p("la cadera", "ля кадэ́ра", "бедро/таз"),
+      p("el hombro", "эль о́мбро", "плечо"),
+      p("las muelas", "лас муэ́лас", "коренные зубы"),
+      p("los brazos", "лос бра́сос", "руки"),
+      p("las piernas", "лас пье́рнас", "ноги"),
+      p("los pies", "лос пьес", "ступни")
+    ],
+    rules: [
+      {
+        rule: "Глагол DOLER — та же модель, что и GUSTAR",
+        body: "Doler строится как gustar-глаголы: с местоимениями косвенного дополнения (me/te/le/nos/les). Если часть тела в единственном числе — глагол \"duele\", если во множественном — \"duelen\".",
+        ex: [
+          ["Me duele el pecho.", "У меня болит грудь."],
+          ["Me duele la espalda.", "У меня болит спина."],
+          ["Le duelen las muelas.", "У него/неё болят зубы."],
+          ["Nos duelen los pies.", "У нас болят ноги."]
+        ]
+      },
+      {
+        rule: "Глагольные перифразы для описания течения болезни",
+        body: "Начало действия: comenzar/empezar + a + infinitivo. Действие в процессе: seguir/continuar + gerundio. Конец действия: dejar + de + infinitivo.",
+        ex: [
+          ["¿Cuándo comenzó a sentir esa molestia?", "Когда вы начали чувствовать это недомогание?"],
+          ["¿Le sigue molestando?", "Всё ещё беспокоит?"],
+          ["Dejó de molestarme hace unas horas.", "Перестало беспокоить пару часов назад."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 13,
+    emoji: "🚫",
+    title: "Negación y YA/TODAVÍA",
+    titleRu: "Отрицание и слова YA / TODAVÍA",
+    sub: "грамматика / связки",
+    phrases: [
+      p("no", "но", "не"),
+      p("nada", "на́да", "ничего"),
+      p("nadie", "на́диэ", "никто"),
+      p("nunca", "ну́нка", "никогда"),
+      p("sin", "син", "без"),
+      p("ya", "ша", "уже"),
+      p("todavía", "тодави́а", "всё ещё, ещё (не)"),
+      p("aún", "аун", "всё ещё, ещё (не)"),
+      p("imprimir el pasaje", "импримир эль паса́хэ", "распечатать билет"),
+      p("la tarjeta de embarque", "ля тархе́та дэ эмба́рке", "посадочный талон"),
+      p("hacer la valija", "асэ́р ля вали́ха", "собрать чемодан"),
+      p("el pasaporte", "эль пасапо́ртэ", "паспорт"),
+      p("la billetera", "ля бишетэ́ра", "кошелёк"),
+      p("la mochila", "ля моси́ла", "рюкзак"),
+      p("luna", "лу́на", "луна"),
+      p("serenata", "сэрэна́та", "серенада"),
+      p("alguna vez", "альгу́на вэс", "когда-нибудь"),
+      p("siempre", "сье́мпрэ", "всегда")
+    ],
+    rules: [
+      {
+        rule: "Слова отрицания: NO, NADA, NADIE, NUNCA",
+        body: "No + глагол; nadie/nunca/nada как подлежащее + глагол; или no + глагол + nadie/nunca/nada. Звучит естественнее, когда nada/nadie/nunca стоят в начале фразы как подлежащее.",
+        ex: [
+          ["Yo no viajo en colectivo.", "Я не езжу на автобусе."],
+          ["Nadie se acuesta temprano.", "Никто не ложится спать рано."],
+          ["No vamos nunca al campo.", "Мы никогда не ездим за город."],
+          ["Nada me importa.", "Мне ничего не важно."]
+        ]
+      },
+      {
+        rule: "Предлог SIN (без)",
+        body: "Sin используется перед существительным или инфинитивом для выражения отсутствия чего-либо.",
+        ex: [["Lo tomo sin leche y sin azúcar.", "Я пью это без молока и без сахара."]]
+      },
+      {
+        rule: "YA и TODAVÍA — четыре структуры",
+        body: "Ya + pretérito = недавно завершённое действие. Ya + no + presente = привычное действие, которое больше не происходит. Todavía + presente = действие продолжается сейчас. Todavía + no + presente/pretérito = действие ещё не завершено.",
+        ex: [
+          ["Ya he comido.", "Я уже поел(а)."],
+          ["Ya no voy al cine todos los sábados.", "Я больше не хожу в кино по субботам."],
+          ["Todavía estudio español.", "Я всё ещё изучаю испанский."],
+          ["Todavía no he pagado mis cuentas.", "Я ещё не оплатил(а) счета."]
+        ]
+      },
+      {
+        rule: "Примеры-модели с ya/todavía",
+        body: "Типичные диалоговые обороты с ya и todavía в вопросах и ответах.",
+        ex: [
+          ["¿Todavía vivís con tus padres?", "Ты всё ещё живёшь с родителями?"],
+          ["No, ya no vivo con mis padres.", "Нет, я больше не живу с родителями."],
+          ["¿Ya llegó la profesora al aula?", "Учительница уже пришла в класс?"],
+          ["No, todavía no llegó.", "Нет, ещё не пришла."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 14,
+    emoji: "✅",
+    title: "Pretérito Perfecto Compuesto",
+    titleRu: "Составное прошедшее время",
+    sub: "грамматика / опыт",
+    phrases: [
+      p("ya", "ша", "уже"),
+      p("todavía", "тодави́а", "всё ещё"),
+      p("aún", "аун", "всё ещё"),
+      p("últimamente", "у́льтимамэ́нтэ", "в последнее время"),
+      p("alguna vez", "альгу́на вэс", "когда-нибудь"),
+      p("siempre", "сье́мпрэ", "всегда"),
+      p("nunca", "ну́нка", "никогда"),
+      p("esta semana", "э́ста сэма́на", "на этой неделе"),
+      p("este mes", "э́стэ мэс", "в этом месяце"),
+      p("este año", "э́стэ а́ньо", "в этом году"),
+      p("probar una comida nueva", "проба́р у́на коми́да нуэ́ва", "попробовать новую еду"),
+      p("visitar un lugar nuevo", "висита́р ун луга́р нуэ́во", "посетить новое место"),
+      p("cumplir años", "кумпли́р а́ньос", "отмечать день рождения"),
+      p("ahorrar dinero", "аора́р динэ́ро", "копить деньги"),
+      p("adoptar un hábito nuevo", "адопта́р ун а́бито нуэ́во", "приобрести новую привычку"),
+      p("irse de vacaciones", "и́рсэ дэ вакасьо́нэс", "уехать в отпуск"),
+      p("reunirse con viejos amigos", "рэуни́рсе кон вье́хос ами́гос", "встретиться со старыми друзьями"),
+      p("copado", "копа́до", "круто"),
+      p("el asado", "эль аса́до", "жаркое/барбекю")
+    ],
+    rules: [
+      {
+        rule: "Формула: HABER + PARTICIPIO",
+        body: "Составное прошедшее время образуется вспомогательным глаголом haber (he, has, ha, hemos, han) плюс причастие. Форма для vos совпадает с tú — has.",
+        ex: [
+          ["He viajado por toda Europa.", "Я путешествовал по всей Европе."],
+          ["¿Has estado alguna vez en la India?", "Ты когда-нибудь была в Индии?"],
+          ["Sí, he estado varias veces.", "Да, я была там несколько раз."]
+        ]
+      },
+      {
+        rule: "Образование причастия (participio)",
+        body: "-AR глаголы образуют причастие на -ADO, -ER/-IR глаголы — на -IDO. Есть неправильные причастия: abrir→abierto, decir→dicho, escribir→escrito, hacer→hecho, poner→puesto, romper→roto, ver→visto, volver→vuelto.",
+        ex: [
+          ["hablar → hablado", "говорить → сказано/говорено"],
+          ["comer → comido", "есть → съедено"],
+          ["vivir → vivido", "жить → прожито"]
+        ]
+      },
+      {
+        rule: "Употребление: опыт без указания когда / текущий незакрытый период",
+        body: "Perfecto используется для прошлых действий/опыта без указания точного момента, а также для действий, завершённых в текущем незакрытом периоде (esta semana, este año, hoy).",
+        ex: [
+          ["Esta semana he hecho muchas cosas: he trabajado, he ido a clase, he tocado la guitarra.", "На этой неделе я сделал(а) много всего: работал(а), ходил(а) на занятия, играл(а) на гитаре."],
+          ["Nunca he comido asado.", "Я никогда не ел асадо."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 15,
+    emoji: "⚖️",
+    title: "Perfecto vs. Indefinido",
+    titleRu: "Perfecto или Indefinido: какое время выбрать?",
+    sub: "грамматика / выбор времени",
+    phrases: [
+      p("terminar", "тэрмина́р", "заканчиваться"),
+      p("el Renacimiento", "эль рэнасимье́нто", "Возрождение"),
+      p("sentirse cansado", "сэнти́рсе канса́до", "чувствовать себя уставшим"),
+      p("sentirse estresado", "сэнти́рсе эстрэса́до", "чувствовать себя в стрессе"),
+      p("enojarse", "эноха́рсе", "сердиться"),
+      p("el período cultural", "эль пэри́одо культура́ль", "культурный период"),
+      p("la causa", "ля ка́уса", "причина"),
+      p("el culpable", "эль кульпа́блэ", "виновный"),
+      p("responsable", "рэспонса́блэ", "ответственный")
+    ],
+    rules: [
+      {
+        rule: "Главное различие: открытый vs. закрытый период времени",
+        body: "Perfecto используется для действий в периоде, который ещё не закончился. Indefinido — для действий в периоде, который уже закончился.",
+        ex: [
+          ["Mi tercer hijo ha nacido este año.", "Мой третий ребёнок родился в этом году (год ещё не закончился)."],
+          ["Mi tercer hijo nació en febrero.", "Мой третий ребёнок родился в феврале (февраль уже закончился)."]
+        ]
+      },
+      {
+        rule: "Разговор о своей жизни (perfecto) vs. конкретные факты (indefinido)",
+        body: "Perfecto применяется, когда речь идёт о жизненном опыте в целом (жизнь ещё не закончилась). Indefinido — когда указывается конкретный завершённый момент.",
+        ex: [
+          ["¿Alguna vez has comido arroz negro? — No, nunca he comido arroz negro.", "Ты когда-нибудь ел чёрный рис? — Нет, никогда не ел."],
+          ["¿Alguna vez has comido arroz negro? — Sí, comí el año pasado en Valencia.", "Ты когда-нибудь ел чёрный рис? — Да, ел в прошлом году в Валенсии."]
+        ]
+      },
+      {
+        rule: "Практическое правило выбора",
+        body: "Если в вопросе есть чёткая закрытая точка/период в прошлом (ayer, el año pasado, en 1990, el lunes) — используется Indefinido. Если период ещё открыт или неважен (esta semana, este año, alguna vez, nunca, en mi vida) — используется Perfecto.",
+        ex: [
+          ["La Segunda Guerra Mundial terminó en 1945.", "Вторая мировая война закончилась в 1945 году."],
+          ["¡Por fin, hoy es 21 de marzo y el verano ha terminado!", "Наконец, сегодня 21 марта, и лето закончилось!"],
+          ["Este mes hemos ido a comer afuera tres veces.", "В этом месяце мы уже три раза ходили есть вне дома."],
+          ["El mes pasado Juan dio una presentación en el trabajo.", "В прошлом месяце Хуан провёл презентацию на работе."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 16,
+    emoji: "👗",
+    title: "Ropa y compras: los demostrativos",
+    titleRu: "Одежда и покупки: указательные местоимения",
+    sub: "покупки / одежда",
+    phrases: [
+      p("el buzo", "эль бу́со", "толстовка/свитшот"),
+      p("el chaleco", "эль чале́ко", "жилет"),
+      p("el gorro", "эль го́рро", "шапка"),
+      p("el jean", "эль джин", "джинсы"),
+      p("el pantalón", "эль пантало́н", "брюки"),
+      p("el saco", "эль са́ко", "пиджак"),
+      p("el sombrero", "эль сомбрэ́ро", "шляпа"),
+      p("el vestido", "эль вэсти́до", "платье"),
+      p("la camisa", "ля ками́са", "рубашка"),
+      p("la campera", "ля кампэ́ра", "куртка"),
+      p("la cartera", "ля картэ́ра", "сумка"),
+      p("la pollera", "ля поше́ра", "юбка"),
+      p("la remera", "ля рэмэ́ра", "футболка"),
+      p("las medias", "лас мэ́диас", "носки/чулки"),
+      p("las zapatillas", "лас сапати́шас", "кроссовки"),
+      p("los anteojos", "лос антэо́хос", "очки"),
+      p("el color", "эль коло́р", "цвет"),
+      p("el número", "эль ну́мэро", "размер (обуви)"),
+      p("probarse", "проба́рсе", "примерять"),
+      p("quedar bien/mal", "кэда́р бьен/маль", "хорошо/плохо сидеть (об одежде)"),
+      p("estar de oferta", "эста́р дэ офэ́рта", "быть по акции")
+    ],
+    rules: [
+      {
+        rule: "Указательные прилагательные (este/ese/aquel)",
+        body: "Este/esta/estos/estas — близко к говорящему (aquí/acá). Ese/esa/esos/esas — средняя дистанция (ahí). Aquel/aquella/aquellos/aquellas — далеко (allí/allá). Согласуются в роде и числе с существительным.",
+        ex: [
+          ["Este vestido es muy hermoso. ¿Dónde lo compraste?", "Это платье очень красивое. Где ты его купила?"]
+        ]
+      },
+      {
+        rule: "Указательные местоимения (без существительного)",
+        body: "Указательные слова могут использоваться самостоятельно, заменяя существительное.",
+        ex: [["¿Estos o aquellos que están en vidriera?", "Эти или те, что в витрине?"]]
+      },
+      {
+        rule: "Нейтральные местоимения esto/eso/aquello",
+        body: "Используются для абстрактных понятий без указания рода — когда речь не о конкретном предмете, а об идее или ситуации в целом.",
+        ex: [["En mi casa siempre me decían que de eso no se habla.", "У меня дома всегда говорили, что об этом не говорят."]]
+      },
+      {
+        rule: "Конструкция QUEDAR (по модели GUSTAR/DOLER)",
+        body: "Quedar используется для выражения мнения о том, как сидит одежда: me/te/le/nos/les + queda (ед.ч.) / quedan (мн.ч.). Parecer работает по той же модели.",
+        ex: [
+          ["¿Cómo te quedan los zapatos?", "Как тебе туфли (сидят)?"],
+          ["Me quedan perfectos.", "Мне отлично подходят."],
+          ["Me parece que esa ropa te queda mal.", "Мне кажется, эта одежда тебе не идёт."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 17,
+    emoji: "🌍",
+    title: "Trabajos insólitos y tipos de viajero",
+    titleRu: "Необычные профессии и типы путешественников",
+    sub: "культура / чтение",
+    phrases: [
+      p("el sueldo", "эль суэ́льдо", "зарплата"),
+      p("el disfraz", "эль дисфра́с", "костюм"),
+      p("el cuidador", "эль куйда́дор", "смотритель"),
+      p("la cuidadora", "ля куйдадо́ра", "смотрительница"),
+      p("peligroso", "пелигро́со", "опасный"),
+      p("limpiavidrios de altura", "лимпьяви́дриос дэ альту́ра", "мойщик окон на высоте"),
+      p("viajero", "вьяхэ́ро", "путешественник"),
+      p("la encuesta", "ля энкуэ́ста", "опрос"),
+      p("rara vez", "ра́ра вэс", "редко"),
+      p("folletos turísticos", "фоше́тос тури́стикос", "туристические буклеты"),
+      p("el vuelo", "эль вуэ́ло", "рейс"),
+      p("alojarse", "алоха́рсе", "останавливаться (в отеле)"),
+      p("los hostales", "лос оста́лес", "хостелы"),
+      p("las pensiones", "лас пэнсьо́нэс", "пансионы"),
+      p("deportes extremos", "дэпо́ртэс экстрэ́мос", "экстремальные виды спорта"),
+      p("escalar una montaña", "эскала́р у́на монта́нья", "взбираться на гору"),
+      p("a dedo", "а дэ́до", "автостопом"),
+      p("a pie", "а пьэ́", "пешком"),
+      p("explorar volcanes y cuevas", "эксплора́р волька́нэс и куэ́вас", "исследовать вулканы и пещеры"),
+      p("bronceado", "бронсэа́до", "загорелый")
+    ],
+    rules: [
+      {
+        rule: "Закрепление Pretérito Perfecto через опросник",
+        body: "Грамматика урока не новая — закрепляется Pretérito Perfecto через контекст (необычные профессии, типы путешественников).",
+        ex: [
+          ["¿Qué es lo último que has leído...?", "Что последнее ты читал(а)...?"],
+          ["¿Cuándo has subido a un avión por última vez?", "Когда ты последний раз садился в самолёт?"],
+          ["¿Has escalado una montaña alguna vez?", "Ты когда-нибудь взбирался на гору?"]
+        ]
+      },
+      {
+        rule: "Слова частотности для ответов",
+        body: "Шкала частотности от полного отрицания до постоянного действия: nunca - casi nunca - rara vez - alguna vez - algunas veces - casi siempre - siempre.",
+        ex: [
+          ["Soy empanada desde hace cuatro meses. Tenés que tomar mucho líquido...", "Я работаю «эмпанадой» уже четыре месяца. Приходится много пить..."],
+          ["¡Sentís mucho miedo! Estás a 20 pisos, pero... hacés más de 60 bajadas por día.", "Тебе очень страшно! Ты на 20-м этаже, но... делаешь больше 60 спусков в день."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 18,
+    emoji: "🕰️",
+    title: "Pretérito Imperfecto",
+    titleRu: "Прошедшее несовершенное время",
+    sub: "грамматика / прошлые привычки",
+    phrases: [
+      p("antes", "а́нтэс", "раньше"),
+      p("generalmente", "хэнэра́льмэнтэ", "обычно"),
+      p("normalmente", "норма́льмэнтэ", "обычно"),
+      p("con frecuencia", "кон фрэкуэ́нсиа", "часто"),
+      p("a menudo", "а мэну́до", "часто"),
+      p("casi siempre", "ка́си сье́мпрэ", "почти всегда"),
+      p("todos los días", "то́дос лос ди́ас", "каждый день"),
+      p("ser tímido", "сэр ти́мидо", "быть застенчивым"),
+      p("traviesa", "трабье́са", "озорная"),
+      p("inteligente", "интэлихэ́нтэ", "умный"),
+      p("soler + infinitivo", "солэ́р + инфинити́во", "иметь обыкновение (делать что-то)"),
+      p("acostumbrar + infinitivo", "акостумбра́р + инфинити́во", "иметь привычку (делать что-то)"),
+      p("amar dibujar", "ама́р дибуха́р", "обожать рисовать"),
+      p("juntarse con amigos", "хунта́рсе кон ами́гос", "собираться с друзьями")
+    ],
+    rules: [
+      {
+        rule: "Регулярное спряжение имперфекта",
+        body: "-AR глаголы: trabajaba, trabajabas, trabajaba, trabajábamos, trabajaban. -ER/-IR глаголы: comía/vivía, comías/vivías, comía/vivía, comíamos/vivíamos, comían/vivían. Форма yo совпадает с формой él/ella.",
+        ex: [
+          ["Cuando yo era pequeña, iba al parque todos los días.", "Когда я была маленькой, я каждый день ходила в парк."]
+        ]
+      },
+      {
+        rule: "Только три неправильных глагола: SER, IR, VER",
+        body: "SER: era, eras, era, éramos, eran. IR: iba, ibas, iba, íbamos, iban. VER: veía, veías, veía, veíamos, veían. Важно: imperfecto не различает vos и tú — формы полностью идентичны.",
+        ex: [
+          ["Cuando era pequeña, tenía el pelo corto y rizado. Era una niña alegre.", "Когда я была маленькой, у меня были короткие кудрявые волосы. Я была весёлой девочкой."]
+        ]
+      },
+      {
+        rule: "Четыре употребления imperfecto",
+        body: "1) Привычные действия в прошлом. 2) Описание прошлой ситуации/сцены. 3) Описание чувств человека в прошлом. 4) Фоновый контекст рассказа.",
+        ex: [
+          ["Cuando yo era pequeña, jugaba con mis amigos.", "Когда я была маленькой, я играла с друзьями."],
+          ["La casa era grande, era luminosa... estaba sucia, estaba desordenada.", "Дом был большой, светлый... был грязным, неубранным."],
+          ["El protagonista estaba nervioso.", "Главный герой нервничал."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 19,
+    emoji: "🎈",
+    title: "La infancia: Mafalda y el pasado de todos",
+    titleRu: "Детство: Мафальда и прошлое всех нас",
+    sub: "культура / детство",
+    phrases: [
+      p("ama de casa", "а́ма дэ ка́са", "домохозяйка"),
+      p("el hermanito", "эль эрмани́то", "братик"),
+      p("los videojuegos", "лос видэохуэ́гос", "видеоигры"),
+      p("los dibujos animados", "лос дибу́хос анима́дос", "мультфильмы"),
+      p("las noticias", "лас ноти́сиас", "новости"),
+      p("la apariencia", "ля апарье́нсиа", "внешность"),
+      p("pacifista", "пасифи́ста", "пацифист(ка)"),
+      p("las guerras", "лас гэ́ррас", "войны"),
+      p("intérprete", "интэ́рпрэтэ", "переводчик"),
+      p("Naciones Unidas", "насьо́нэс уни́дас", "ООН"),
+      p("compañeros de grado", "компаньэ́рос дэ гра́до", "одноклассники"),
+      p("inmigrantes", "иммигра́нтэс", "иммигранты"),
+      p("el dueño", "эль дуэ́ньо", "владелец"),
+      p("el almacén", "эль альмасэ́н", "продуктовая лавка"),
+      p("atender clientes", "атэндэ́р клиэ́нтэс", "обслуживать клиентов"),
+      p("pedidos a domicilio", "пэди́дос а домиси́лио", "доставка на дом"),
+      p("sacar malas notas", "сака́р ма́лас но́тас", "получать плохие оценки"),
+      p("soñar con", "сонья́р кон", "мечтать о")
+    ],
+    rules: [
+      {
+        rule: "Закрепление imperfecto через культурное чтение",
+        body: "Урок использует imperfecto через культовые аргентинские тексты (комикс «Mafalda») для практики в контексте, без новой грамматики.",
+        ex: [
+          ["Mafalda tenía 6 años en 1964. Vivía con su mamá, su papá y su hermanito.", "Мафальде было 6 лет в 1964 году. Она жила с мамой, папой и братиком."],
+          ["Mafalda y Guille no tenían videojuegos, ni computadora, ni teléfonos móviles.", "У Мафальды и Гилье не было видеоигр, компьютера, мобильных телефонов."],
+          ["Manolito, después de la escuela, trabajaba en el almacén.", "После школы Манолито работал в лавке."]
+        ]
+      },
+      {
+        rule: "Вопросы для обсуждения о детстве",
+        body: "Модель для описания своего детства с использованием imperfecto и voseo.",
+        ex: [
+          ["¿Cómo era tu vida cuando eras chico/a?", "Какой была твоя жизнь, когда ты был(а) маленьким(ой)?"],
+          ["Cuando era niña, tenía el pelo corto y rizado. Era una niña alegre.", "Когда я была девочкой, у меня были короткие кудрявые волосы. Я была весёлой девочкой."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 20,
+    emoji: "🎉",
+    title: "Celebraciones: antes y ahora",
+    titleRu: "Праздники: раньше и сейчас",
+    sub: "культура / традиции",
+    phrases: [
+      p("Navidad", "навида́д", "Рождество"),
+      p("Noche Buena", "но́че буэ́на", "Сочельник"),
+      p("Año Nuevo", "а́ньо нуэ́во", "Новый год"),
+      p("Reyes Magos", "рэ́йес ма́гос", "Волхвы/Три короля"),
+      p("Pascua", "па́скуа", "Пасха"),
+      p("Carnaval", "карнава́ль", "Карнавал"),
+      p("Día del Amigo", "ди́а дэль ами́го", "День друга"),
+      p("Día de la Primavera", "ди́а дэ ля примавэ́ра", "День весны"),
+      p("Día del Estudiante", "ди́а дэль эстудья́нтэ", "День студента"),
+      p("las pasas de uva", "лас па́сас дэ у́ва", "изюм"),
+      p("la sidra", "ля си́дра", "сидр"),
+      p("los fuegos artificiales", "лос фуэ́гос артифисья́лес", "фейерверк"),
+      p("brindar", "бринда́р", "произносить тост"),
+      p("la boda", "ля бо́да", "свадьба"),
+      p("el casamiento", "эль касамье́нто", "свадьба"),
+      p("el novio", "эль но́вио", "жених"),
+      p("la novia", "ля но́виа", "невеста"),
+      p("la luna de miel", "ля лу́на дэ мьель", "медовый месяц"),
+      p("la vajilla", "ля вахи́ша", "посуда"),
+      p("prestar", "прэста́р", "одалживать")
+    ],
+    rules: [
+      {
+        rule: "Сравнительные конструкции",
+        body: "más...que — больше, чем; menos...que — меньше, чем; tanto como — так же, как. Используются для сравнения «раньше/сейчас».",
+        ex: [
+          ["Antes, las novias eran más elegantes que ahora.", "Раньше невесты были элегантнее, чем сейчас."],
+          ["Ahora tienen menos tiempo que antes.", "Сейчас у них меньше времени, чем раньше."],
+          ["La gente se divertía tanto como ahora.", "Люди веселились так же, как сейчас."]
+        ]
+      },
+      {
+        rule: "Imperfecto для описания старых традиций",
+        body: "Imperfecto используется для описания того, как раньше было принято — привычных, повторяющихся ритуалов и праздничных обычаев.",
+        ex: [
+          ["Cuando era niña, la celebración de Año Nuevo era mi favorita.", "Когда я была девочкой, празднование Нового года было моим любимым."],
+          ["Toda la familia se reunía en la casa de mi abuela.", "Вся семья собиралась в доме бабушки."],
+          ["Cuando sonaban las doce campanadas, levantábamos nuestras copas y brindábamos.", "Когда били двенадцать ударов, мы поднимали бокалы и произносили тост."],
+          ["Antiguamente, en Castilla, algunas mujeres salían por las calles a entregar la invitación a la boda.", "Раньше в Кастилии подруги семей разносили приглашения на свадьбу по улицам посёлка."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 21,
+    emoji: "🔗",
+    title: "Combinación de pronombres OD + OI",
+    titleRu: "Комбинация местоимений: прямое + косвенное дополнение",
+    sub: "грамматика / сложные конструкции",
+    phrases: [
+      p("el mensaje", "эль мэнса́хэ", "сообщение"),
+      p("el regalo", "эль рэга́ло", "подарок"),
+      p("echar gasolina", "эча́р госоли́на", "заправлять бензином"),
+      p("echar nafta", "эча́р на́фта", "заправлять бензином"),
+      p("el reloj", "эль рэло́х", "часы"),
+      p("el joyero", "эль хойе́ро", "ювелир"),
+      p("el descuento", "эль дэскуэ́нто", "скидка"),
+      p("la reserva", "ля рэсэ́рва", "бронь"),
+      p("enviar por email", "энвиа́р пор имэ́йл", "отправить по почте"),
+      p("contar una historia", "конта́р у́на исто́риа", "рассказать историю"),
+      p("vender", "вэндэ́р", "продавать"),
+      p("prestar dinero", "прэста́р динэ́ро", "одалживать деньги"),
+      p("las llaves", "лас ша́вэс", "ключи"),
+      p("la miel", "ля мьель", "мёд"),
+      p("el vecino", "эль вэси́но", "сосед")
+    ],
+    rules: [
+      {
+        rule: "Порядок слов: OI + OD + VERBO",
+        body: "Когда в предложении есть оба местоимения (косвенное и прямое), косвенное всегда ставится перед прямым.",
+        ex: [
+          ["Te he comprado un café. ¿Dónde me lo has comprado?", "Я купил тебе кофе. Где ты мне его купил?"],
+          ["Acabo de hacer la reserva. Ahora te la envío por email.", "Я только что сделал бронь. Сейчас отправлю её тебе по почте."]
+        ]
+      },
+      {
+        rule: "Правило LE/LES → SE",
+        body: "Когда местоимение косвенного дополнения 3-го лица (le/les) стоит рядом с местоимением прямого дополнения 3-го лица (lo/la/los/las), LE/LES меняется на SE.",
+        ex: [
+          ["¿Vendiste tu coche a Lucía? — Sí, se lo vendí la semana pasada.", "Ты продал машину Лусии? — Да, я продал её ей на прошлой неделе."],
+          ["¿Les diste el regalo a tus abuelos? — Sí, se lo di.", "Ты дал подарок бабушке с дедушкой? — Да, дал."]
+        ]
+      },
+      {
+        rule: "Расстановка местоимений с инфинитивом/герундием",
+        body: "Перед спрягаемым глаголом местоимения ставятся отдельно. С инфинитивом или герундием можно поставить и до вспомогательного глагола, и приклеить к самому инфинитиву/герундию.",
+        ex: [
+          ["Se la he comprado en Zara.", "Я купил её ей в Zara."],
+          ["¿Vamos a comprarle un regalo a Jaime? — Sí, yo también se lo quiero comprar.", "Мы купим Хайме подарок? — Да, я тоже хочу его купить."],
+          ["¿Estás leyendo un cuento a los niños? — Sí, se lo estoy leyendo.", "Ты читаешь детям сказку? — Да, я её им читаю."]
+        ]
+      }
+    ]
+  },
+  {
+    id: 22,
+    emoji: "🍽️",
+    title: "En el restaurante y en la cocina",
+    titleRu: "В ресторане и на кухне: финальная практика",
+    sub: "ресторан / готовка (финал)",
+    phrases: [
+      p("el mozo", "эль мо́со", "официант"),
+      p("la carta", "ля ка́рта", "меню"),
+      p("el menú", "эль мэну́", "меню"),
+      p("la cerveza con espuma", "ля сэрвэ́са кон эспу́ма", "пиво с пенкой"),
+      p("el vino tinto", "эль ви́но ти́нто", "красное вино"),
+      p("el bife", "эль би́фэ", "стейк"),
+      p("bien cocido", "бьен коси́до", "хорошо прожаренный"),
+      p("a punto", "а пу́нто", "средней прожарки"),
+      p("jugoso", "хуго́со", "с кровью/сочный"),
+      p("la ensalada rusa", "ля энсала́да ру́са", "оливье"),
+      p("las papas fritas", "лас па́пас фри́тас", "картофель фри"),
+      p("la propina", "ля проби́на", "чаевые"),
+      p("la cuenta", "ля куэ́нта", "счёт"),
+      p("pedir", "пэди́р", "заказывать"),
+      p("ordenar", "ордэна́р", "заказывать"),
+      p("recomendar", "рэкомэнда́р", "рекомендовать"),
+      p("el locro", "эль ло́кро", "локро"),
+      p("la heladera", "ля эладэ́ра", "холодильник"),
+      p("la mesada", "ля мэса́да", "кухонная столешница"),
+      p("el zapallo", "эль сапа́шо", "тыква"),
+      p("agarrar", "агарра́р", "брать/хватать"),
+      p("che", "чэ", "эй, слушай"),
+      p("dorar la carne", "дора́р ля ка́рнэ", "обжарить мясо до золотистой корочки")
+    ],
+    rules: [
+      {
+        rule: "Смешение регистров: vos между друзьями, usted с официантом",
+        body: "Друзья обращаются друг к другу на vos, а к официанту/незнакомцу в сервисной ситуации — на usted. Оба регистра могут сосуществовать в одном диалоге.",
+        ex: [
+          ["¿Mónica, y vos?", "А ты, Моника?"],
+          ["¿Puede traerme la carta?", "Не могли бы вы принести мне меню?"]
+        ]
+      },
+      {
+        rule: "Модели вопрос-ответ с двойными местоимениями",
+        body: "Закрепление комбинации OI+OD (урок 21) в контексте ресторана — заказ и ответ официанта.",
+        ex: [
+          ["Mozo, no tengo el menú. ¿Puede traérmelo?", "Официант, у меня нет меню. Не могли бы вы мне его принести?"],
+          ["¿Me lo trae, por favor?", "Принесёте мне его, пожалуйста?"],
+          ["Sí, señor, enseguida se lo traigo.", "Да, сеньор, сейчас принесу."]
+        ]
+      },
+      {
+        rule: "Диалог: приготовление locro (насыщенный voseo)",
+        body: "Пример устойчивого voseo между друзьями на кухне при готовке традиционного блюда locro.",
+        ex: [
+          ["¿Dónde están los ingredientes? — Los dejé sobre la mesa del comedor.", "Где ингредиенты? — Я оставила их на обеденном столе."],
+          ["Tenés que traer una silla y bajarla.", "Тебе нужно принести стул и снять её."],
+          ["¿Sabés dónde compró tu hermana el zapallo?", "Ты знаешь, где твоя сестра купила тыкву?"],
+          ["Mariela, ¿no la estás cortando vos?", "Мариэла, это не ты режешь?"]
+        ]
+      }
+    ]
+  }
+];
+  // ================= Общие компоненты уровня урока =================
+
+  function PhraseCard({ ph, hideRu }) {
+    const [revealed, setRevealed] = useState(false);
+    const showRu = !hideRu || revealed;
+    return e("div", {
+      onClick: () => hideRu && setRevealed(!revealed),
+      style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", cursor: hideRu ? "pointer" : "default", display: "flex", alignItems: "center", gap: 12 }
+    },
+      e("div", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 } },
+        e("div", { style: { fontSize: 16, fontWeight: 600, color: C.ink } }, ph.es),
+        e("div", { style: { fontSize: 13.5, color: C.celesteDark, fontStyle: "italic" } }, ph.tr),
+        e("div", { style: { fontSize: 14, color: showRu ? C.gray : "transparent", background: showRu ? "none" : C.celesteLight, borderRadius: 6 } }, showRu ? ph.ru : "нажми, чтобы увидеть перевод")
+      )
+    );
+  }
+  function StudyView({ pool, hideRu }) {
+    return e("div", { style: { display: "grid", gap: 8 } }, pool.map((ph, i) => e(PhraseCard, { key: i, ph, hideRu })));
+  }
+  function FlashView({ pool }) {
+    const [phrases] = useState(() => shuffle(pool));
+    const [idx, setIdx] = useState(0);
+    const [flipped, setFlipped] = useState(false);
+    const ph = phrases[idx];
+    const next = (d) => { setFlipped(false); setIdx((idx + d + phrases.length) % phrases.length); };
+    return e("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 16 } },
+      e("div", { style: { fontSize: 13, color: C.gray } }, idx + 1, " из ", phrases.length),
+      e("div", { onClick: () => setFlipped(!flipped), style: { width: "100%", maxWidth: 420, minHeight: 190, borderRadius: 20, background: flipped ? C.ink : "#fff", border: `2px solid ${flipped ? C.ink : C.celeste}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: 22, cursor: "pointer", textAlign: "center", boxShadow: "0 4px 16px rgba(28,43,69,.08)", position: "relative" } },
+        !flipped
+          ? e(React.Fragment, null, e("div", { style: { fontSize: 22, fontWeight: 700, color: C.ink } }, ph.es), e("div", { style: { fontSize: 15, color: C.celesteDark, fontStyle: "italic" } }, ph.tr), e("div", { style: { fontSize: 12, color: C.gray, marginTop: 8 } }, "нажми — увидишь перевод"))
+          : e("div", { style: { fontSize: 19, fontWeight: 600, color: "#fff" } }, ph.ru)
+      ),
+      e("div", { style: { display: "flex", gap: 10 } },
+        e("button", { style: btnStyle(false), onClick: () => next(-1) }, "← Назад"),
+        e("button", { style: btnStyle(true), onClick: () => next(1) }, "Дальше →")
+      )
+    );
+  }
+  function MatchView({ pool }) {
+    const [round, setRound] = useState(0);
+    const pairs = useMemo(() => shuffle(pool).slice(0, Math.min(6, pool.length)), [round, pool]);
+    const rightCol = useMemo(() => shuffle(pairs), [pairs]);
+    const [selL, setSelL] = useState(null);
+    const [selR, setSelR] = useState(null);
+    const [matched, setMatched] = useState({});
+    const [wrong, setWrong] = useState(null);
+    const [errs, setErrs] = useState(0);
+    const allDone = pairs.length > 0 && pairs.every(ph => matched[ph.es]);
+    const evaluate = (l, r) => {
+      if (l === r) { setMatched(m => ({ ...m, [l]: true })); }
+      else { setWrong({ l, r }); setErrs(e => e + 1); setTimeout(() => setWrong(null), 700); }
+      setSelL(null); setSelR(null);
+    };
+    const clickL = (es) => { if (matched[es] || wrong) return; if (selR) evaluate(es, selR); else setSelL(selL === es ? null : es); };
+    const clickR = (es) => { if (matched[es] || wrong) return; if (selL) evaluate(selL, es); else setSelR(selR === es ? null : es); };
+    const nextRound = () => { setRound(r => r + 1); setMatched({}); setSelL(null); setSelR(null); setWrong(null); setErrs(0); };
+    const cellStyle = (state) => ({
+      background: state === "done" ? "#EAF7F0" : state === "sel" ? C.celesteLight : state === "wrong" ? "#FBEDED" : "#fff",
+      border: `2px solid ${state === "done" ? C.green : state === "sel" ? C.celeste : state === "wrong" ? C.red : C.border}`,
+      color: state === "done" ? C.green : state === "wrong" ? C.red : C.ink,
+      opacity: state === "done" ? 0.65 : 1, borderRadius: 12, padding: "11px 10px", textAlign: "left",
+      width: "100%", cursor: state === "done" ? "default" : "pointer", fontFamily: font, minHeight: 58
+    });
+    return e("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
+      e("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 13, color: C.gray } },
+        e("span", null, "Соедини испанское слово с переводом"), e("span", { style: { color: errs ? C.red : C.gray } }, "✗ ", errs)),
+      e("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+        e("div", { style: { display: "grid", gap: 8, alignContent: "start" } }, pairs.map(ph => {
+          const state = matched[ph.es] ? "done" : wrong?.l === ph.es ? "wrong" : selL === ph.es ? "sel" : "idle";
+          return e("button", { key: ph.es, onClick: () => clickL(ph.es), style: cellStyle(state) },
+            e("div", { style: { fontSize: 13.5, fontWeight: 700 } }, ph.es), e("div", { style: { fontSize: 11.5, fontStyle: "italic", color: C.celesteDark } }, ph.tr));
+        })),
+        e("div", { style: { display: "grid", gap: 8, alignContent: "start" } }, rightCol.map(ph => {
+          const state = matched[ph.es] ? "done" : wrong?.r === ph.es ? "wrong" : selR === ph.es ? "sel" : "idle";
+          return e("button", { key: ph.es, onClick: () => clickR(ph.es), style: cellStyle(state) }, e("div", { style: { fontSize: 13.5 } }, ph.ru));
+        }))
+      ),
+      allDone && e("div", { style: { textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "10px 0" } },
+        e(Sun, { size: 40 }), e("div", { style: { fontSize: 18, fontWeight: 800, color: C.ink } }, errs === 0 ? "¡Perfecto! Без единой ошибки" : `Готово! Ошибок: ${errs}`),
+        e("button", { onClick: nextRound, style: btnStyle(true) }, "Следующие 6 →"))
+    );
+  }
+  function QuizView({ pool }) {
+    const makeQuestions = () => shuffle(pool).slice(0, Math.min(8, pool.length)).map(ph => {
+      const wrong = shuffle(pool.filter(x => x.ru !== ph.ru)).slice(0, 3);
+      return { ph, options: shuffle([...wrong, ph]) };
+    });
+    const [questions, setQuestions] = useState(makeQuestions);
+    const [qi, setQi] = useState(0);
+    const [picked, setPicked] = useState(null);
+    const [score, setScore] = useState(0);
+    const [done, setDone] = useState(false);
+    const q = questions[qi];
+    const pick = (opt) => { if (picked !== null) return; setPicked(opt); if (opt.ru === q.ph.ru) setScore(s => s + 1); };
+    const next = () => { setPicked(null); if (qi + 1 >= questions.length) setDone(true); else setQi(qi + 1); };
+    const restart = () => { setQuestions(makeQuestions()); setQi(0); setPicked(null); setScore(0); setDone(false); };
+    if (!q) return e("div", { style: { color: C.gray, textAlign: "center", padding: 30 } }, "Недостаточно слов для теста.");
+    if (done) {
+      const pct = Math.round(score / questions.length * 100);
+      return e("div", { style: { textAlign: "center", padding: "30px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 } },
+        e(Sun, { size: 54 }), e("div", { style: { fontSize: 30, fontWeight: 800, color: C.ink } }, score, " / ", questions.length),
+        e("div", { style: { fontSize: 16, color: C.gray, maxWidth: 340 } }, pct === 100 ? "¡Perfecto! Урок усвоен 🇦🇷" : pct >= 70 ? "¡Muy bien! Ошибки попадут в «Повторение»" : "Dale, ошибки сохранены — они будут попадаться чаще"),
+        e("button", { onClick: restart, style: btnStyle(true) }, "Пройти ещё раз"));
+    }
+    return e("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
+      e("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 13, color: C.gray } }, e("span", null, "Вопрос ", qi + 1, " из ", questions.length), e("span", null, "✓ ", score)),
+      e("div", { style: { height: 6, background: C.celesteLight, borderRadius: 3 } }, e("div", { style: { height: 6, width: `${qi / questions.length * 100}%`, background: C.celeste, borderRadius: 3 } })),
+      e("div", { style: { background: "#fff", border: `2px solid ${C.celeste}`, borderRadius: 16, padding: "20px 18px", textAlign: "center", position: "relative" } },
+        e("div", { style: { fontSize: 13, color: C.gray, marginBottom: 6 } }, "Что это значит?"),
+        e("div", { style: { fontSize: 21, fontWeight: 700, color: C.ink } }, q.ph.es),
+        e("div", { style: { fontSize: 14, color: C.celesteDark, fontStyle: "italic", marginTop: 4 } }, q.ph.tr)),
+      e("div", { style: { display: "grid", gap: 8 } }, q.options.map((opt, i) => {
+        let bg = "#fff", border = C.border, color = C.ink;
+        if (picked !== null) { if (opt.ru === q.ph.ru) { bg = "#EAF7F0"; border = C.green; color = C.green; } else if (opt === picked) { bg = "#FBEDED"; border = C.red; color = C.red; } }
+        return e("button", { key: i, onClick: () => pick(opt), style: { background: bg, border: `2px solid ${border}`, color, borderRadius: 12, padding: "13px 16px", fontSize: 15, fontWeight: 500, textAlign: "left", cursor: picked === null ? "pointer" : "default", fontFamily: font } }, opt.ru);
+      })),
+      picked !== null && e("button", { onClick: next, style: { ...btnStyle(true), alignSelf: "center" } }, qi + 1 >= questions.length ? "Результат" : "Дальше →")
+    );
+  }
+  function RulesView({ rules }) {
+    return e("div", { style: { display: "grid", gap: 10 } }, rules.map((r, i) => e("div", { key: i, style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px" } },
+      e("div", { style: { fontSize: 15.5, fontWeight: 700, color: C.celesteDark, marginBottom: 6 } }, r.rule),
+      e("div", { style: { fontSize: 13.5, color: C.gray, lineHeight: 1.5, marginBottom: 8 } }, r.body),
+      r.ex.map((ex, j) => e("div", { key: j, style: { fontSize: 13.5, color: C.ink, marginBottom: 3 } }, e("b", null, ex[0]), e("span", { style: { color: C.gray } }, " — ", ex[1])))
+    )));
+  }
+
+  function LessonScreen({ lesson, onBack }) {
+    const [mode, setMode] = useState(lesson.rules ? "rules" : "study");
+    const [hideRu, setHideRu] = useState(false);
+    return e("div", null,
+      e("div", { style: { background: `linear-gradient(180deg, ${C.celeste} 0%, ${C.celesteDark} 100%)`, padding: "16px 20px", color: "#fff" } },
+        e("div", { style: { maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", gap: 10 } },
+          e("button", { onClick: onBack, style: { background: "rgba(255,255,255,.2)", border: "none", color: "#fff", borderRadius: 10, padding: "7px 13px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: font } }, "← Назад"),
+          e("div", null,
+            e("div", { style: { fontSize: 17, fontWeight: 700 } }, lesson.emoji, " ", lesson.title),
+            lesson.titleRu && e("div", { style: { fontSize: 12.5, opacity: 0.85 } }, lesson.titleRu)
+          )
+        )
+      ),
+      e("div", { style: { maxWidth: 640, margin: "0 auto", padding: "20px 16px 40px", display: "flex", flexDirection: "column", gap: 16 } },
+        e("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+          lesson.rules && e("button", { onClick: () => setMode("rules"), style: pillStyle(mode === "rules") }, "📖 Правила"),
+          e("button", { onClick: () => setMode("study"), style: pillStyle(mode === "study") }, "📋 Учить"),
+          e("button", { onClick: () => setMode("flash"), style: pillStyle(mode === "flash") }, "🎴 Карточки"),
+          e("button", { onClick: () => setMode("match"), style: pillStyle(mode === "match") }, "🔗 Пары"),
+          e("button", { onClick: () => setMode("quiz"), style: pillStyle(mode === "quiz") }, "✅ Тест"),
+          mode === "study" && e("button", { onClick: () => setHideRu(!hideRu), style: { ...pillStyle(hideRu), marginLeft: "auto" } }, hideRu ? "👁 Показать перевод" : "🙈 Скрыть перевод")
+        ),
+        mode === "rules" && lesson.rules && e(RulesView, { rules: lesson.rules }),
+        mode === "study" && e(StudyView, { pool: lesson.phrases, hideRu }),
+        mode === "flash" && e(FlashView, { pool: lesson.phrases }),
+        mode === "match" && e(MatchView, { pool: lesson.phrases }),
+        mode === "quiz" && e(QuizView, { pool: lesson.phrases })
+      )
+    );
+  }
+
+  // ================= Домашний экран =================
+  function LessonRow({ emoji, title, titleRu, sub, badge, onClick }) {
+    return e("div", { onClick, style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 } },
+      e("div", { style: { fontSize: 24 } }, emoji),
+      e("div", { style: { flex: 1 } },
+        e("div", { style: { fontSize: 15.5, fontWeight: 700 } }, title),
+        titleRu && e("div", { style: { fontSize: 12.5, color: C.celesteDark, fontWeight: 600 } }, "— ", titleRu),
+        e("div", { style: { fontSize: 12, color: C.gray, marginTop: 1 } }, sub)
+      ),
+      badge && e("div", { style: { fontSize: 11.5, color: C.celesteDark, fontWeight: 600, background: C.celesteLight, borderRadius: 999, padding: "4px 9px", whiteSpace: "nowrap" } }, badge)
+    );
+  }
+
+  function App() {
+    const [screen, setScreen] = useState({ page: "home" });
+    return e("div", { style: { minHeight: "100vh", background: C.paper, fontFamily: font, color: C.ink } },
+      e("style", null, `@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap'); *{box-sizing:border-box;margin:0} button:focus-visible{outline:3px solid ${C.sun};outline-offset:2px}`),
+
+      screen.page === "home" && e(React.Fragment, null,
+        e("div", { style: { background: `linear-gradient(180deg, ${C.celeste} 0%, ${C.celesteDark} 100%)`, padding: "28px 20px 24px", color: "#fff" } },
+          e("div", { style: { maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", gap: 12 } },
+            e(Sun, { size: 40 }),
+            e("div", null, e("div", { style: { fontSize: 25, fontWeight: 800, letterSpacing: -0.5 } }, "Habla Argentina"),
+              e("div", { style: { fontSize: 13.5, opacity: 0.9 } }, "Курс А2 · 22 урока"))
+          )
+        ),
+        e("div", { style: { maxWidth: 640, margin: "0 auto", padding: "20px 16px 40px", display: "flex", flexDirection: "column", gap: 8 } },
+          e("div", { style: { background: C.celesteLight, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 16px", fontSize: 12.5, color: C.celesteDark, fontWeight: 500 } },
+            "Весь материал книги A2, но порядок и подача переработаны — это не копия учебника."),
+          LESSONS.map(l => e(LessonRow, {
+            key: l.id, emoji: l.emoji, title: "Урок " + l.id + ". " + l.title, titleRu: l.titleRu, sub: l.sub,
+            badge: l.phrases.length + " слов", onClick: () => setScreen({ page: "lesson", lessonId: l.id })
+          }))
+        )
+      ),
+
+      screen.page === "lesson" && e(LessonScreen, { lesson: LESSONS.find(l => l.id === screen.lessonId), onBack: () => setScreen({ page: "home" }) })
+    );
+  }
+
+  // ===== ПРОСТОЙ БАРЬЕР ДОСТУПА ПО КОДУ (как в app.html / a1.html) =====
+  // Код доступа для курса А2. Чтобы сменить — поменяй строку ниже (и выдавай новый код в боте).
+  var ACCESS_CODE = "A2HABLA2026";
+  var GATE_KEY = "habla-a2-access-ok";
+
+  function renderApp() {
+    ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+  }
+
+  function showGate() {
+    var root = document.getElementById("root");
+    root.innerHTML =
+      '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+      'font-family:\'Rubik\',-apple-system,\'Segoe UI\',Roboto,sans-serif;background:#FDFDFB;padding:24px">' +
+      '<div style="max-width:360px;width:100%;text-align:center">' +
+      '<div style="font-size:26px;font-weight:800;color:#1C2B45;margin-bottom:10px">Habla Argentina — курс А2</div>' +
+      '<div style="font-size:15px;color:#7A8699;margin-bottom:20px">Введи код доступа, который прислал бот после оплаты</div>' +
+      '<input id="gate-input" type="text" placeholder="КОД ДОСТУПА" style="width:100%;box-sizing:border-box;' +
+      'padding:14px 16px;font-size:16px;border:2px solid #DCE6F0;border-radius:12px;text-align:center;' +
+      'text-transform:uppercase;font-family:inherit;margin-bottom:12px" />' +
+      '<div id="gate-err" style="color:#D95555;font-size:13.5px;min-height:18px;margin-bottom:10px"></div>' +
+      '<button id="gate-btn" style="width:100%;padding:14px;font-size:16px;font-weight:700;color:#fff;' +
+      'background:#74ACDF;border:none;border-radius:12px;cursor:pointer;font-family:inherit">Открыть курс</button>' +
+      '</div></div>';
+
+    var input = document.getElementById("gate-input");
+    var btn = document.getElementById("gate-btn");
+    var err = document.getElementById("gate-err");
+
+    function tryOpen() {
+      var val = (input.value || "").trim().toUpperCase();
+      if (val === ACCESS_CODE) {
+        try { localStorage.setItem(GATE_KEY, "1"); } catch (e) {}
+        root.innerHTML = "";
+        renderApp();
+      } else {
+        err.textContent = "Неверный код. Проверь сообщение от бота.";
+        input.style.borderColor = "#D95555";
+      }
+    }
+    btn.addEventListener("click", tryOpen);
+    input.addEventListener("keydown", function (ev) { if (ev.key === "Enter") tryOpen(); });
+  }
+
+  // Если код уже вводили раньше на этом устройстве — не спрашиваем снова.
+  var alreadyOk = false;
+  try { alreadyOk = localStorage.getItem(GATE_KEY) === "1"; } catch (e) {}
+  // Автопропуск по ссылке с кодом: hablaargentina.com/a2.html?code=A2HABLA2026
+  try {
+    var qp = new URLSearchParams(window.location.search).get("code");
+    if (qp && qp.trim().toUpperCase() === ACCESS_CODE) {
+      localStorage.setItem(GATE_KEY, "1");
+      alreadyOk = true;
+    }
+  } catch (e) {}
+
+  if (alreadyOk) renderApp(); else showGate();
+})();
+</script>
+</body>
+</html>
