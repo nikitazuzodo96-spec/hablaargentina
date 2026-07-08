@@ -1483,10 +1483,11 @@ const LESSONS = [
     );
   }
 
-  // ===== ПРОСТОЙ БАРЬЕР ДОСТУПА ПО КОДУ (как в app.html / a1.html) =====
-  // Код доступа для курса А2. Чтобы сменить — поменяй строку ниже (и выдавай новый код в боте).
-  var ACCESS_CODE = "A2HABLA2026";
-  var GATE_KEY = "habla-a2-access-ok";
+  // ===== ВХОД ПО ЛОГИНУ И ПАРОЛЮ (Firebase) =====
+  var FIREBASE_API_KEY = "AIzaSyBDUVPQEpfPOGvkv6trd1GWZAVtesBmMg0";
+  var FIREBASE_PROJECT_ID = "habla-argentina";
+  var COURSE_KEY = "a2";
+  var GATE_KEY = "habla-auth-" + COURSE_KEY;
 
   function renderApp() {
     ReactDOM.createRoot(document.getElementById("root")).render(e(App));
@@ -1499,47 +1500,81 @@ const LESSONS = [
       'font-family:\'Rubik\',-apple-system,\'Segoe UI\',Roboto,sans-serif;background:#FDFDFB;padding:24px">' +
       '<div style="max-width:360px;width:100%;text-align:center">' +
       '<div style="font-size:26px;font-weight:800;color:#1C2B45;margin-bottom:10px">Habla Argentina — курс А2</div>' +
-      '<div style="font-size:15px;color:#7A8699;margin-bottom:20px">Введи код доступа, который прислал бот после оплаты</div>' +
-      '<input id="gate-input" type="text" placeholder="КОД ДОСТУПА" style="width:100%;box-sizing:border-box;' +
+      '<div style="font-size:15px;color:#7A8699;margin-bottom:20px">Введи логин и пароль, которые прислал бот после оплаты</div>' +
+      '<input id="gate-email" type="email" placeholder="Почта" autocomplete="username" style="width:100%;box-sizing:border-box;' +
       'padding:14px 16px;font-size:16px;border:2px solid #DCE6F0;border-radius:12px;text-align:center;' +
-      'text-transform:uppercase;font-family:inherit;margin-bottom:12px" />' +
+      'font-family:inherit;margin-bottom:10px" />' +
+      '<input id="gate-pass" type="password" placeholder="Пароль" autocomplete="current-password" style="width:100%;box-sizing:border-box;' +
+      'padding:14px 16px;font-size:16px;border:2px solid #DCE6F0;border-radius:12px;text-align:center;' +
+      'font-family:inherit;margin-bottom:12px" />' +
       '<div id="gate-err" style="color:#D95555;font-size:13.5px;min-height:18px;margin-bottom:10px"></div>' +
       '<button id="gate-btn" style="width:100%;padding:14px;font-size:16px;font-weight:700;color:#fff;' +
-      'background:#74ACDF;border:none;border-radius:12px;cursor:pointer;font-family:inherit">Открыть курс</button>' +
+      'background:#74ACDF;border:none;border-radius:12px;cursor:pointer;font-family:inherit">Войти</button>' +
       '</div></div>';
 
-    var input = document.getElementById("gate-input");
+    var emailInput = document.getElementById("gate-email");
+    var passInput = document.getElementById("gate-pass");
     var btn = document.getElementById("gate-btn");
     var err = document.getElementById("gate-err");
 
     function tryOpen() {
-      var val = (input.value || "").trim().toUpperCase();
-      if (val === ACCESS_CODE) {
-        try { localStorage.setItem(GATE_KEY, "1"); } catch (e) {}
-        root.innerHTML = "";
-        renderApp();
-      } else {
-        err.textContent = "Неверный код. Проверь сообщение от бота.";
-        input.style.borderColor = "#D95555";
+      var email = (emailInput.value || "").trim();
+      var pass = passInput.value || "";
+      if (!email || !pass) {
+        err.textContent = "Заполни оба поля.";
+        return;
       }
+      btn.disabled = true;
+      btn.textContent = "Проверяю…";
+      err.textContent = "";
+
+      fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + FIREBASE_API_KEY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: pass, returnSecureToken: true })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+        .then(function (res) {
+          if (!res.ok) { throw new Error("auth"); }
+          var idToken = res.body.idToken;
+          var uid = res.body.localId;
+          return fetch(
+            "https://firestore.googleapis.com/v1/projects/" + FIREBASE_PROJECT_ID +
+            "/databases/(default)/documents/purchases/" + uid,
+            { headers: { Authorization: "Bearer " + idToken } }
+          ).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); });
+        })
+        .then(function (res) {
+          var courses = [];
+          if (res.ok && res.body.fields && res.body.fields.courses) {
+            var values = res.body.fields.courses.arrayValue.values || [];
+            courses = values.map(function (v) { return v.stringValue; });
+          }
+          if (courses.indexOf(COURSE_KEY) === -1) { throw new Error("no-access"); }
+          try { localStorage.setItem(GATE_KEY, JSON.stringify({ email: email, ok: true })); } catch (e) {}
+          root.innerHTML = "";
+          renderApp();
+        })
+        .catch(function (e) {
+          btn.disabled = false;
+          btn.textContent = "Войти";
+          if (e && e.message === "no-access") {
+            err.textContent = "У этого аккаунта нет доступа к этому курсу.";
+          } else {
+            err.textContent = "Неверная почта или пароль.";
+          }
+        });
     }
     btn.addEventListener("click", tryOpen);
-    input.addEventListener("keydown", function (ev) { if (ev.key === "Enter") tryOpen(); });
+    passInput.addEventListener("keydown", function (ev) { if (ev.key === "Enter") tryOpen(); });
+    emailInput.addEventListener("keydown", function (ev) { if (ev.key === "Enter") passInput.focus(); });
   }
 
-  // Если код уже вводили раньше на этом устройстве — не спрашиваем снова.
-  var alreadyOk = false;
-  try { alreadyOk = localStorage.getItem(GATE_KEY) === "1"; } catch (e) {}
-  // Автопропуск по ссылке с кодом: hablaargentina.com/a2.html?code=A2HABLA2026
-  try {
-    var qp = new URLSearchParams(window.location.search).get("code");
-    if (qp && qp.trim().toUpperCase() === ACCESS_CODE) {
-      localStorage.setItem(GATE_KEY, "1");
-      alreadyOk = true;
-    }
-  } catch (e) {}
+  // Если уже входили раньше на этом устройстве — не спрашиваем снова.
+  var savedAuth = null;
+  try { savedAuth = JSON.parse(localStorage.getItem(GATE_KEY) || "null"); } catch (e) {}
 
-  if (alreadyOk) renderApp(); else showGate();
+  if (savedAuth && savedAuth.ok) renderApp(); else showGate();
 })();
 </script>
 </body>
