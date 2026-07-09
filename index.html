@@ -92,6 +92,10 @@
   .btn-ink:hover{transform:translateY(-1px)}
   .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
   .btn-ghost:hover{border-color:var(--celeste);color:var(--celeste-deep)}
+  .btn-try{background:#28B571;color:#fff;box-shadow:0 8px 22px -6px rgba(40,181,113,.65);animation:tryPulse 2.2s ease-in-out infinite}
+  .btn-try:hover{transform:translateY(-1px);background:#22A063;animation-play-state:paused}
+  .btn-try-lg{font-size:18px;padding:17px 32px;font-weight:700}
+  @keyframes tryPulse{0%,100%{box-shadow:0 8px 22px -6px rgba(40,181,113,.65)}50%{box-shadow:0 8px 30px -4px rgba(40,181,113,.95)}}
   .nav-links .btn{padding:10px 20px}
   @media(max-width:760px){.nav-links a:not(.btn){display:none}}
 
@@ -414,7 +418,7 @@
       <p class="lead reveal d3">Практический курс для тех, кто только переехал. Никакой воды и грамматики ради грамматики — только фразы, которые нужны в первую неделю: магазин, мясная лавка, аптека, транспорт, деньги.</p>
       <div class="hero-cta reveal d4">
         <a class="btn btn-sun" href="#price">Получить курс →</a>
-        <a class="btn btn-ghost" href="app.html">▶ Попробовать бесплатно</a>
+        <a class="btn btn-try" href="app.html">▶ Попробовать бесплатно</a>
       </div>
       <div class="hero-note reveal d4">
         <span>🎁</span> Первые 3 урока «Быстрого старта» открыты без регистрации и оплаты
@@ -579,6 +583,9 @@
       <div class="eyebrow">Цена</div>
       <h2>Один раз — и навсегда</h2>
       <p>Никаких подписок. Заплатил один раз — курс твой, включая все будущие уроки.</p>
+      <div style="margin-top:22px">
+        <a class="btn btn-try btn-try-lg" href="app.html">▶ Попробовать бесплатно — 3 урока без оплаты</a>
+      </div>
     </div>
     <div class="price-wrap">
       <div class="price">
