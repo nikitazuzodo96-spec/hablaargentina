@@ -20,6 +20,14 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://hablaargentina.com/skolko-ispanskogo-nuzhno-pereezd.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://hablaargentina.com/transport-buenos-aires-sube.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
-
-<!-- redeploy trigger -->
