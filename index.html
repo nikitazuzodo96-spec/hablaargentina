@@ -757,4 +757,71 @@
 <!-- ================= FAQ ================= -->
 <section class="inside" id="faq">
   <div class="wrap">
-    <div 
+    <div class="sec-head" style="margin:0 auto 30px;text-align:center;max-width:560px">
+      <div class="eyebrow">Вопросы</div>
+      <h2>Частые вопросы</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>Мне подойдёт, если я вообще ноль в испанском? <span class="plus">+</span></summary>
+        <p>Да, курс сделан именно для нуля. Начинается с правил чтения и алфавита, дальше — готовые фразы с русской транскрипцией. Ничего не нужно знать заранее.</p>
+      </details>
+      <details>
+        <summary>Чем это отличается от Duolingo? <span class="plus">+</span></summary>
+        <p>Duolingo учит «универсальному» испанскому и абстрактным предложениям. Здесь — только аргентинский вариант (voseo, «ш», местные слова) и только те ситуации, в которые ты попадёшь в первую неделю: магазин, лавка, аптека, транспорт, деньги.</p>
+      </details>
+      <details>
+        <summary>Это подписка? <span class="plus">+</span></summary>
+        <p>Нет. Один разовый платёж — и доступ остаётся навсегда.</p>
+      </details>
+      <details>
+        <summary>На каком устройстве заниматься? <span class="plus">+</span></summary>
+        <p>Курс открывается прямо в браузере и работает как приложение — на телефоне, планшете или компьютере, без установки. Удобно повторять фразы даже стоя в очереди в лавке.</p>
+      </details>
+      <details>
+        <summary>Будет ли уровень A1 и A2? <span class="plus">+</span></summary>
+        <p>Уровни А1 и А2 уже готовы и доступны отдельными курсами — грамматика, voseo, разговорные конструкции. «Быстрый старт» остаётся базой для первых дней, А1 и А2 — следующие шаги для тех, кто хочет говорить увереннее.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="inside final">
+  <div class="wrap">
+    <h2>Заговори с первого дня 🇦🇷</h2>
+    <p>Открой первые 3 урока бесплатно — без регистрации и оплаты. Понравится — весь курс останется с тобой навсегда.</p>
+    <div class="hero-cta" style="justify-content:center">
+      <a class="btn btn-try btn-try-lg" href="app.html">▶ Попробовать бесплатно</a>
+      <a class="btn btn-ghost" href="#price">Посмотреть цены</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer style="border-top:1px solid var(--line);padding:30px 0;background:var(--paper)">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--ink-soft)">
+    <span>© 2026 hablaargentina.com — аргентинский испанский для жизни в Аргентине</span>
+    <span><a href="https://t.me/HablaArgentinaBot" style="color:var(--ink-soft)">Telegram-бот</a> · <a href="https://www.instagram.com/habla.en.argentina" target="_blank" rel="noopener" style="color:var(--ink-soft)">Instagram</a></span>
+  </div>
+</footer>
+
+<script>
+// Интерактивная карточка произношения: клик по пилюле меняет большой пример.
+(function () {
+  var flip = document.getElementById('flip');
+  if (!flip) return;
+  var es = document.getElementById('pw-es');
+  var ru = document.getElementById('pw-ru');
+  var cap = document.getElementById('pw-cap');
+  flip.querySelectorAll('.chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      flip.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on'); });
+      chip.classList.add('on');
+      if (es) es.textContent = chip.getAttribute('data-es');
+      if (ru) ru.textContent = chip.getAttribute('data-ru');
+      if (cap) cap.textContent = chip.getAttribute('data-cap');
+    });
+  });
+})();
+</script>
