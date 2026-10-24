@@ -275,6 +275,30 @@
   .st-cta .btn-ghost:hover{background:rgba(255,255,255,.1)}
   .st-note{margin-top:22px;font-size:13.5px;color:#9FB0C8;max-width:760px}
 
+  /* --- книги --- */
+  .books{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .promo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:20px;padding:18px 22px;margin-bottom:28px}
+  .promo .ic{font-size:30px}
+  .promo b{display:block;font-size:17px}
+  .promo span{color:#C9D3E3;font-size:15px}
+  .promo .go{margin-left:auto}
+  .free-book{display:grid;grid-template-columns:150px 1fr;gap:24px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px;margin-bottom:22px}
+  @media(max-width:600px){.free-book{grid-template-columns:1fr;text-align:center}.free-book img{margin:0 auto}}
+  .free-book img{width:150px;border-radius:10px;box-shadow:0 12px 30px -12px rgba(20,35,61,.4)}
+  .free-book h3{font-size:20px;margin:8px 0 8px}
+  .free-book p{color:var(--ink-soft);margin-bottom:14px}
+  .b-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:980px){.b-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.b-grid{grid-template-columns:1fr}}
+  .book{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:16px}
+  .book img{width:100%;border-radius:10px;box-shadow:0 12px 30px -14px rgba(20,35,61,.45);margin-bottom:14px}
+  .book h3{font-size:16px;margin-bottom:6px}
+  .book p{font-size:14.5px;color:var(--ink-soft);margin-bottom:14px}
+  .book .bottom{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .book .price{font-family:'Unbounded',sans-serif;font-weight:700;font-size:19px}
+  .b-note{margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--ink-soft);font-size:15.5px}
+  .gift{display:inline-block;margin-top:2px;font-size:13px;font-weight:600;color:var(--ok);background:var(--ok-bg);border-radius:999px;padding:3px 10px}
+
   footer{border-top:1px solid var(--line);padding:34px 0 40px}
   footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted)}
   footer a{color:var(--ink-soft)}
@@ -301,6 +325,7 @@
       <a class="hide-m" href="#situations">Фразы</a>
       <a class="hide-m" href="#articles">Статьи</a>
       <a href="#free">Бесплатно</a>
+      <a class="hide-m" href="#books">Книги</a>
       <a class="hide-m" href="#courses">Курсы</a>
     </nav>
   </div>
@@ -574,6 +599,64 @@
 </section>
 
 <!-- ================= КУРСЫ ================= -->
+<!-- ================= КНИГИ ================= -->
+<section class="books" id="books">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Книги By the way, Argentina</div>
+      <h2>Учебники, которые можно распечатать</h2>
+      <p>PDF-учебники A1–B2 с русской транскрипцией, грамматикой и упражнениями с ответами. Скачай, распечатай и занимайся дома — <a href="kak-raspechatat-knigu.html">как распечатать в Аргентине</a>.</p>
+    </div>
+
+    <div class="promo">
+      <span class="ic">🎁</span>
+      <span><b>Купил любой курс — все 4 PDF-учебника в подарок</b><span>Бот пришлёт их вместе с доступом. Уже покупал раньше? Напиши боту /knigi</span></span>
+      <a class="btn go" href="#courses">К курсам →</a>
+    </div>
+
+    <div class="free-book">
+      <img src="books/cover-start.jpg" alt="Разговорник Быстрый старт" loading="lazy" width="420" height="590">
+      <div>
+        <span class="gift">Бесплатно</span>
+        <h3>Разговорник «Быстрый старт»</h3>
+        <p>16 страниц самого нужного на первые дни: аэропорт, SIM-карта, магазины, канцелярия, аптека, банк, транспорт и экстренные случаи.</p>
+        <a class="btn" id="free-book-dl" href="books/btw-bystryj-start.pdf" download>Скачать PDF</a>
+      </div>
+    </div>
+
+    <div class="b-grid">
+      <div class="book">
+        <img src="books/cover-a1.jpg" alt="Учебник By the way, Argentina A1" loading="lazy" width="420" height="590">
+        <h3>Учебник A1</h3>
+        <p>Чтение и произношение, знакомство, магазин, кафе, транспорт, аптека, жильё.</p>
+        <div class="bottom"><span class="price">490 ₽</span><a class="btn btn-ghost book-buy" data-book="a1" href="https://t.me/HablaArgentinaBot?start=book_a1">Купить</a></div>
+      </div>
+      <div class="book">
+        <img src="books/cover-a2.jpg" alt="Учебник By the way, Argentina A2" loading="lazy" width="420" height="590">
+        <h3>Учебник A2</h3>
+        <p>Прошедшие времена, работа, врач, банк и документы, покупки, советы.</p>
+        <div class="bottom"><span class="price">590 ₽</span><a class="btn btn-ghost book-buy" data-book="a2" href="https://t.me/HablaArgentinaBot?start=book_a2">Купить</a></div>
+      </div>
+      <div class="book">
+        <img src="books/cover-b1.jpg" alt="Учебник By the way, Argentina B1" loading="lazy" width="420" height="590">
+        <h3>Учебник B1</h3>
+        <p>Истории, просьбы, советы с субхунтивом, аренда, жалобы, футбол.</p>
+        <div class="bottom"><span class="price">690 ₽</span><a class="btn btn-ghost book-buy" data-book="b1" href="https://t.me/HablaArgentinaBot?start=book_b1">Купить</a></div>
+      </div>
+      <div class="book">
+        <img src="books/cover-b2.jpg" alt="Учебник By the way, Argentina B2" loading="lazy" width="420" height="590">
+        <h3>Учебник B2</h3>
+        <p>Субхунтив, «если бы», переговоры, лунфардо, университет, дебаты.</p>
+        <div class="bottom"><span class="price">790 ₽</span><a class="btn btn-ghost book-buy" data-book="b2" href="https://t.me/HablaArgentinaBot?start=book_b2">Купить</a></div>
+      </div>
+    </div>
+    <div class="b-note">
+      <span>Все 4 учебника вместе — <b>1590 ₽</b> вместо 2560 ₽. Оплата картой или через СБП в Telegram-боте, PDF приходит сразу.</span>
+      <a class="btn book-buy" data-book="all" href="https://t.me/HablaArgentinaBot?start=book_all">Купить все 4 →</a>
+    </div>
+  </div>
+</section>
+
 <a id="price" aria-hidden="true"></a>
 <section class="courses" id="courses">
   <div class="wrap">
@@ -587,21 +670,21 @@
         <div class="lvl">С нуля</div>
         <h3>Быстрый старт</h3>
         <p>Бытовые ситуации первых недель: магазины, кафе, аптека, транспорт, деньги, экстренные случаи.</p>
-        <ul><li>Диалоги-симуляции с выбором ответа</li><li>Карточки, игры и тесты</li><li>Русская транскрипция каждой фразы</li></ul>
+        <ul><li>Диалоги-симуляции с выбором ответа</li><li>Карточки, игры и тесты</li><li>Русская транскрипция каждой фразы</li><li><b>+ 4 PDF-учебника в подарок</b></li></ul>
         <div class="bottom"><span class="price">986 ₽</span><a class="btn btn-ghost" href="https://t.me/HablaArgentinaBot?start=quickstart">Подробнее</a></div>
       </div>
       <div class="card course">
         <div class="lvl">Уровень A1</div>
         <h3>Курс А1</h3>
         <p>Грамматика и voseo по порядку: чтобы не только повторять готовые фразы, но и строить свои.</p>
-        <ul><li>Программа уровня A1</li><li>Живые аргентинские конструкции</li><li>Практика и повторение ошибок</li></ul>
+        <ul><li>Программа уровня A1</li><li>Живые аргентинские конструкции</li><li>Практика и повторение ошибок</li><li><b>+ 4 PDF-учебника в подарок</b></li></ul>
         <div class="bottom"><span class="price">1999 ₽</span><a class="btn btn-ghost" href="https://t.me/HablaArgentinaBot?start=a1">Подробнее</a></div>
       </div>
       <div class="card course">
         <div class="lvl">Уровень A2</div>
         <h3>Курс А2</h3>
         <p>Прошедшие времена, местоимения и обороты — чтобы рассказывать о себе и поддерживать разговор.</p>
-        <ul><li>Программа уровня A2</li><li>Аргентинские диалоги и тексты о культуре</li><li>Карточки и тесты</li></ul>
+        <ul><li>Программа уровня A2</li><li>Аргентинские диалоги и тексты о культуре</li><li>Карточки и тесты</li><li><b>+ 4 PDF-учебника в подарок</b></li></ul>
         <div class="bottom"><span class="price">1999 ₽</span><a class="btn btn-ghost" href="https://t.me/HablaArgentinaBot?start=a2">Подробнее</a></div>
       </div>
     </div>
@@ -775,6 +858,13 @@
     a.addEventListener('click', function () {
       try { ym(111052750, 'reachGoal', 'vnzh_click'); } catch (e) {}
     });
+  });
+
+  // --- книги: цели в Метрике ---
+  var dl = document.getElementById('free-book-dl');
+  if (dl) dl.addEventListener('click', function () { try { ym(111052750, 'reachGoal', 'free_book_download'); } catch (e) {} });
+  document.querySelectorAll('.book-buy').forEach(function (a) {
+    a.addEventListener('click', function () { try { ym(111052750, 'reachGoal', 'book_buy_click', { book: a.dataset.book }); } catch (e) {} });
   });
 
   // --- фильтр статей ---
