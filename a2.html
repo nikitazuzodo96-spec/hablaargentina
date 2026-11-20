@@ -18,6 +18,7 @@
 <style>html,body{margin:0;background:#FDFDFB}#root{min-height:100vh}</style>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="audio.js"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -1305,6 +1306,7 @@ const LESSONS = [
       onClick: () => hideRu && setRevealed(!revealed),
       style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", cursor: hideRu ? "pointer" : "default", display: "flex", alignItems: "center", gap: 12 }
     },
+      haSpeaker(ph.es),
       e("div", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 } },
         e("div", { style: { fontSize: 16, fontWeight: 600, color: C.ink } }, ph.es),
         e("div", { style: { fontSize: 13.5, color: C.celesteDark, fontStyle: "italic" } }, ph.tr),
@@ -1325,7 +1327,7 @@ const LESSONS = [
       e("div", { style: { fontSize: 13, color: C.gray } }, idx + 1, " из ", phrases.length),
       e("div", { onClick: () => setFlipped(!flipped), style: { width: "100%", maxWidth: 420, minHeight: 190, borderRadius: 20, background: flipped ? C.ink : "#fff", border: `2px solid ${flipped ? C.ink : C.celeste}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: 22, cursor: "pointer", textAlign: "center", boxShadow: "0 4px 16px rgba(28,43,69,.08)", position: "relative" } },
         !flipped
-          ? e(React.Fragment, null, e("div", { style: { fontSize: 22, fontWeight: 700, color: C.ink } }, ph.es), e("div", { style: { fontSize: 15, color: C.celesteDark, fontStyle: "italic" } }, ph.tr), e("div", { style: { fontSize: 12, color: C.gray, marginTop: 8 } }, "нажми — увидишь перевод"))
+          ? e(React.Fragment, null, e("div", { style: { fontSize: 22, fontWeight: 700, color: C.ink } }, ph.es), e("div", { style: { fontSize: 15, color: C.celesteDark, fontStyle: "italic" } }, ph.tr), haSpeaker(ph.es, { size: 46 }), e("div", { style: { fontSize: 12, color: C.gray, marginTop: 8 } }, "нажми — увидишь перевод"))
           : e("div", { style: { fontSize: 19, fontWeight: 600, color: "#fff" } }, ph.ru)
       ),
       e("div", { style: { display: "flex", gap: 10 } },
@@ -1365,7 +1367,7 @@ const LESSONS = [
       e("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
         e("div", { style: { display: "grid", gap: 8, alignContent: "start" } }, pairs.map(ph => {
           const state = matched[ph.es] ? "done" : wrong?.l === ph.es ? "wrong" : selL === ph.es ? "sel" : "idle";
-          return e("button", { key: ph.es, onClick: () => clickL(ph.es), style: cellStyle(state) },
+          return e("button", { key: ph.es, onClick: () => { haSay(ph.es, false); clickL(ph.es); }, style: cellStyle(state) },
             e("div", { style: { fontSize: 13.5, fontWeight: 700 } }, ph.es), e("div", { style: { fontSize: 11.5, fontStyle: "italic", color: C.celesteDark } }, ph.tr));
         })),
         e("div", { style: { display: "grid", gap: 8, alignContent: "start" } }, rightCol.map(ph => {
@@ -1406,7 +1408,7 @@ const LESSONS = [
       e("div", { style: { background: "#fff", border: `2px solid ${C.celeste}`, borderRadius: 16, padding: "20px 18px", textAlign: "center", position: "relative" } },
         e("div", { style: { fontSize: 13, color: C.gray, marginBottom: 6 } }, "Что это значит?"),
         e("div", { style: { fontSize: 21, fontWeight: 700, color: C.ink } }, q.ph.es),
-        e("div", { style: { fontSize: 14, color: C.celesteDark, fontStyle: "italic", marginTop: 4 } }, q.ph.tr)),
+        e("div", { style: { fontSize: 14, color: C.celesteDark, fontStyle: "italic", marginTop: 4 } }, q.ph.tr), e("div", { style: { marginTop: 10, display: "flex", justifyContent: "center" } }, haSpeaker(q.ph.es, { size: 42 }))),
       e("div", { style: { display: "grid", gap: 8 } }, q.options.map((opt, i) => {
         let bg = "#fff", border = C.border, color = C.ink;
         if (picked !== null) { if (opt.ru === q.ph.ru) { bg = "#EAF7F0"; border = C.green; color = C.green; } else if (opt === picked) { bg = "#FBEDED"; border = C.red; color = C.red; } }
@@ -1419,7 +1421,7 @@ const LESSONS = [
     return e("div", { style: { display: "grid", gap: 10 } }, rules.map((r, i) => e("div", { key: i, style: { background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px" } },
       e("div", { style: { fontSize: 15.5, fontWeight: 700, color: C.celesteDark, marginBottom: 6 } }, r.rule),
       e("div", { style: { fontSize: 13.5, color: C.gray, lineHeight: 1.5, marginBottom: 8 } }, r.body),
-      r.ex.map((ex, j) => e("div", { key: j, style: { fontSize: 13.5, color: C.ink, marginBottom: 3 } }, e("b", null, ex[0]), e("span", { style: { color: C.gray } }, " — ", ex[1])))
+      r.ex.map((ex, j) => e("div", { key: j, style: { fontSize: 13.5, color: C.ink, marginBottom: 3 } }, e("b", null, ex[0]), haSpeaker(ex[0], { size: 24, inline: true }), e("span", { style: { color: C.gray } }, " — ", ex[1])))
     )));
   }
 
