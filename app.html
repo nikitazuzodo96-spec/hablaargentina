@@ -2,6 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<script>/* данные Telegram не должны попадать в аналитику */
+(function(){try{if(/tgWebApp/i.test(location.hash+location.search)){var q=new URLSearchParams(location.search);Array.from(q.keys()).forEach(function(k){if(/^tgWebApp/i.test(k))q.delete(k);});q=q.toString();history.replaceState(null,"",location.pathname+(q?"?"+q:"")+(/tgWebApp/i.test(location.hash)?"":location.hash));}}catch(e){}})();
+</script>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -17,6 +20,7 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="favicon.png">
 
+<meta name="robots" content="noindex, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Habla Argentina — курс</title>
 <meta name="description" content="Практический курс аргентинского испанского: 15 уроков, 8 диалогов, озвучка и умное повторение.">
@@ -1540,12 +1544,12 @@
       React.createElement("div", { style: { fontSize: 20, fontWeight: 700, color: "#14233D", marginBottom: 8 } }, "Вход в курс"),
       React.createElement("div", { style: { fontSize: 14, color: "#7A8699", marginBottom: 20, lineHeight: 1.5 } }, "Этот урок доступен после оплаты. Введи почту и пароль, которые прислал бот."),
       React.createElement("input", {
-        type: "email", placeholder: "Почта", value: email,
+        className: "ym-disable-keys", type: "email", placeholder: "Почта", value: email,
         onChange: (e) => setEmail(e.target.value),
         style: { width: "100%", boxSizing: "border-box", padding: "13px 16px", fontSize: 16, textAlign: "center", border: "2px solid #DCE6F0", borderRadius: 12, outline: "none", marginBottom: 10, fontFamily: "inherit" }
       }),
       React.createElement("input", {
-        type: "password", placeholder: "Пароль", value: pass,
+        className: "ym-disable-keys", type: "password", placeholder: "Пароль", value: pass,
         onChange: (e) => setPass(e.target.value),
         onKeyDown: (e) => { if (e.key === "Enter") tryOpen(); },
         style: { width: "100%", boxSizing: "border-box", padding: "13px 16px", fontSize: 16, textAlign: "center", border: "2px solid #DCE6F0", borderRadius: 12, outline: "none", marginBottom: 12, fontFamily: "inherit" }

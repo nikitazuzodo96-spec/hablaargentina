@@ -2,6 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<script>/* данные Telegram не должны попадать в аналитику */
+(function(){try{if(/tgWebApp/i.test(location.hash+location.search)){var q=new URLSearchParams(location.search);Array.from(q.keys()).forEach(function(k){if(/^tgWebApp/i.test(k))q.delete(k);});q=q.toString();history.replaceState(null,"",location.pathname+(q?"?"+q:"")+(/tgWebApp/i.test(location.hash)?"":location.hash));}}catch(e){}})();
+</script>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -13,8 +16,10 @@
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/111052750" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+<meta name="robots" content="noindex, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Habla Argentina — курс А2</title>
+<meta name="description" content="Вход в курс аргентинского испанского А2 для учеников Habla Argentina.">
 <style>html,body{margin:0;background:#FDFDFB}#root{min-height:100vh}</style>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -1514,10 +1519,10 @@ const LESSONS = [
       '<div style="max-width:360px;width:100%;text-align:center">' +
       '<div style="font-size:26px;font-weight:800;color:#1C2B45;margin-bottom:10px">Habla Argentina — курс А2</div>' +
       '<div style="font-size:15px;color:#7A8699;margin-bottom:20px">Введи логин и пароль, которые прислал бот после оплаты</div>' +
-      '<input id="gate-email" type="email" placeholder="Почта" autocomplete="username" style="width:100%;box-sizing:border-box;' +
+      '<input id="gate-email" class="ym-disable-keys" type="email" placeholder="Почта" autocomplete="username" style="width:100%;box-sizing:border-box;' +
       'padding:14px 16px;font-size:16px;border:2px solid #DCE6F0;border-radius:12px;text-align:center;' +
       'font-family:inherit;margin-bottom:10px" />' +
-      '<input id="gate-pass" type="password" placeholder="Пароль" autocomplete="current-password" style="width:100%;box-sizing:border-box;' +
+      '<input id="gate-pass" class="ym-disable-keys" type="password" placeholder="Пароль" autocomplete="current-password" style="width:100%;box-sizing:border-box;' +
       'padding:14px 16px;font-size:16px;border:2px solid #DCE6F0;border-radius:12px;text-align:center;' +
       'font-family:inherit;margin-bottom:12px" />' +
       '<div id="gate-err" style="color:#D95555;font-size:13.5px;min-height:18px;margin-bottom:10px"></div>' +
